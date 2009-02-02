@@ -1,0 +1,3 @@
+#!/bin/sh
+
+rst2html.py --stylesheet-path=rststyle.css $1.txt $1.html

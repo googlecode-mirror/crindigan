@@ -1,0 +1,65 @@
+==============
+Handling Users
+==============
+This document describes the user login, session, and membership systems,
+including integration with the member systems of other software.
+
+---------------
+Login Procedure
+---------------
+The login procedure will basically do the same thing, regardless of the
+membership system used. It will take a username and password, pass it to
+an authentication class, and verify that the credentials are correct. If
+correct, the session will be modified to register that a user is logged in.
+If incorrect, the visitor will be redirected back to the login form with an
+error, where they can try again.
+
+In the case of integrating with an external software, a user record will be
+created upon the first login, containing the user's ID on the external
+software for referencing, and other RPG-related columns. Registration options
+like username, password, and email will be nulled.
+
+A user will have an option to automatically log in whenever he or she comes
+back to the site, by ticking a checkbox on the login form.
+
+-----------------
+Username Handling
+-----------------
+Since the RPG should not be required to be installed on the same database as
+an external system, we must avoid joining with user tables throughout the code
+As a result, when starting a "new game," the user will be required to enter a
+secondary username that will be used within the RPG. It will then be stored
+alongside the other information within the local user record. Logging in will
+still use the records from the external system.
+
+--------
+Sessions
+--------
+Sessions will be handled by RPG_Session, which also includes a database-backed
+save handler so a list of online users and locations can be created.
+
+------------
+User Storage
+------------
+User records will always be stored with the RPG. If using the built-in member
+system, the records will have all the registration information filled in, such
+as username, password, and email. If using an external system, these fields
+will be nulled. The RPG will not need to depend on extra columns in an external
+software's user table, with the exception of a "money" or "points" column.
+
+-------------------
+User Money Handling
+-------------------
+For both the builtin and external member systems, money will be stored in the
+local user record. If the external system tracks money/points, users will be
+able to transfer their earnings between both the RPG and the external software.
+Make sure to keep this open for exchange rates, and possibly taxing to put
+revenue in another account.
+
+------------
+Registration
+------------
+If using the builtin member system, users will have to go through a basic
+registration process. At the end of the process, a user record will be added
+to the RPG's database. Future features may include email confirmation,
+moderated users, and a CAPTCHA system.
