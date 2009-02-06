@@ -1,0 +1,23 @@
+================
+RPG Program Flow
+================
+The script entry point is simply at index.php, with an optional feature to use
+mod_rewrite. Requests will look something like the following:
+
+::
+  http://example.com/rpg/admin:char/edit/32/
+  |----- base url -----|     |        |   |
+                         controller   |   |
+                                  action  |
+                                        params
+
+Sub controllers may be used by separating parts with a colon. For example,
+the admin:char controller will be in controllers/Admin/Char.php, and be named
+AdminCharController. After the controller is the action, which will correspond
+to the do{Action} method of the controller. If there is no specified
+controller in the URL, it will use IndexController. If there is no action,
+it will use the doIndex() method. If a controller or action is not found, the
+system will throw an exception.
+
+The index file will start the autoloading mechanism, load the config file,
+and route the request to a controller with RPG_Router::processRequest.

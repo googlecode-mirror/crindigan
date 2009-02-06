@@ -3,6 +3,7 @@ RPG Inventory Management
 ========================
 This document describes how the inventory system works.
 
+--------
 Overview
 --------
 Unlike the previous version, where items could not be unique, each inventory
@@ -11,11 +12,14 @@ inventory table, while adding the creation date and other metadata. Basically,
 imagine the records in the item table as classes, and the records in the
 inventory table as instances of those classes, including differing properties.
 
-Table: inventory
-````````````````
-:id:       uint, primary key
-:user_id:  uint, the user this belongs to
-:party_id: uint, the party this belongs to
-:item_id:  uint, the base item id this record is based from
-:inventory_metadata: text, various properties like # uses, item health
-
+Inventory Table
+~~~~~~~~~~~~~~~
+==================  ===========
+Column              Description
+==================  ===========
+id                  uint, primary key
+user_id             uint, the user this belongs to
+party_id            uint, the party this belongs to
+item_id             uint, the base item id this record is based from
+inventory_metadata  text, various properties like # uses, item health
+==================  ===========

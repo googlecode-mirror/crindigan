@@ -36,7 +36,7 @@ still use the records from the external system.
 Sessions
 --------
 Sessions will be handled by RPG_Session, which also includes a database-backed
-save handler so a list of online users and locations can be created.
+save handler so a list of online users and their locations can be created.
 
 ------------
 User Storage
