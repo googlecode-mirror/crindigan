@@ -29,5 +29,54 @@
  */
 class RPG_Controller
 {
+	/**
+	 * Lists all available actions to the controller.
+	 */
+	public function doDebugListActions()
+	{
+		if (RPG::config('debug') === true)
+		{
+			echo '<h2>', get_class($this), ' - Actions</h2>', "\n";
+			echo "<ul>\n";
+			
+			$class = new ReflectionObject($this);
+			foreach ($class->getMethods() AS $method)
+			{
+				$methodName = $method->getName();
+				if (strpos($methodName, 'do') === 0)
+				{
+					echo "\t<li><a href=\"", RPG::url('*', 'debug-view-action', array($methodName)), "\">", substr($methodName, 2), "</a></li>\n";
+				}
+			}
+			echo "</ul>";
+		}
+	}
 	
+	/**
+	 * Displays the source code of the given action name.
+	 *
+	 * @param  string $actionName  Name of the controller's action method.
+	 */
+	public function doDebugViewAction($actionName)
+	{
+		if (RPG::config('debug') === true AND strpos($actionName, 'do') === 0)
+		{
+			$method = new ReflectionMethod($this, $actionName);
+			echo '<h2>', $method->getDeclaringClass()->getName(), "::$actionName()</h2>\n";
+			echo '<a href="', RPG::url('*', 'debug-list-actions'), '">&laquo; Go Back</a><br />';
+			
+			$start  = $method->getStartLine() - 1;
+			$end    = $method->getEndLine();
+			$file   = file($method->getFileName());
+			$lines  = array_slice($file, $start, $end - $start);
+			
+			echo "<pre>\n";
+			echo "\t", $method->getDocComment(), "\n";
+			foreach ($lines AS $line)
+			{
+				echo htmlentities($line);
+			}
+			echo '</pre>';
+		}
+	}
 }

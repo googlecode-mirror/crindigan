@@ -23,14 +23,17 @@
  */
 
 /**
- * Description
+ * The router is responsible for handling requests and passing them off
+ * to the proper controller and action.
  * 
  * @package AnfinitiRPG
  */
 class RPG_Router
 {
 	/**
+	 * Initializes the router with the given controller directory.
 	 *
+	 * @param  string $controllerDir  Path to the base controller directory.
 	 */
 	protected function __construct($controllerDir)
 	{
@@ -45,7 +48,9 @@ class RPG_Router
 	}
 	
 	/**
+	 * Initializes the router and processes the current request.
 	 *
+	 * @param  string $controllerDir  Path to the base controller directory.
 	 */
 	public static function processRequest($controllerDir)
 	{
@@ -111,6 +116,8 @@ class RPG_Router
 	 */
 	protected function _getController($urlPart)
 	{
+		$urlPart  = preg_replace('#[^a-z0-9:]#', '', $urlPart);
+		$urlPart  = preg_replace('#:{2,}#', ':', $urlPart);
 		$fileName = $this->_controllerDir . '/' . str_replace(':', '/', $urlPart) . '.php';
 		
 		// Build class name - admin:char => AdminCharController
@@ -121,6 +128,8 @@ class RPG_Router
 		{
 			throw new Exception('Controller "' . $className . '" not found.');
 		}
+		
+		RPG::set('current_controller', $urlPart);
 		
 		require $fileName;
 		return new $className();
@@ -138,7 +147,11 @@ class RPG_Router
 	 */
 	protected function _getActionName($urlPart)
 	{
-		$method = 'do' . implode('', array_map('ucfirst', explode('-', $urlPart)));
+		$urlPart = preg_replace('#-{2,}#', '-', $urlPart);
+		RPG::set('current_action', $urlPart);
+		
+		$method  = 'do' . implode('', array_map('ucfirst', explode('-', $urlPart)));
+		$method  = preg_replace('#[^a-zA-Z0-9]#', '', $method);
 		return $method;
 	}
 }
