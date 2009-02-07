@@ -24,18 +24,41 @@
 
 class HelloController extends RPG_Controller
 {
+	/**
+	 * Default action of the hello controller.
+	 */
 	public function doIndex()
 	{
 		echo 'Index action of the hello controller.';
 	}
 	
+	/**
+	 * Prints your standard "Hello, world!" to the browser.
+	 */
 	public function doWorld()
 	{
 		echo 'Hello, world!';
 	}
 	
+	/**
+	 * Prints a "Hello, name" message based on a URL parameter.
+	 * 
+	 * @param  string $name  The name this action will greet.
+	 */
 	public function doCustom($name = '')
 	{
 		echo 'Hello, ', htmlentities($name), '!';
+	}
+	
+	/**
+	 * Lists all filters available with the filter extension.
+	 */
+	public function doListFilters()
+	{
+		$list = filter_list();
+		foreach ($list AS $filter)
+		{
+			echo filter_id($filter), ": $filter<br />\n";
+		}
 	}
 }

@@ -27,7 +27,7 @@
  * 
  * @package AnfinitiRPG
  */
-class RPG
+final class RPG
 {
 	/**
 	 * Configuration array.
@@ -115,11 +115,12 @@ class RPG
 	 * Retrieves a value from the variable registry.
 	 *
 	 * @param  string $key
+	 * @param  mixed  $else If the key does not exist, returns this instead.
 	 * @return mixed
 	 */
-	public static function get($key)
+	public static function get($key, $else = null)
 	{
-		return self::isRegistered($key) ? self::$_registry[$key] : null;
+		return self::isRegistered($key) ? self::$_registry[$key] : $else;
 	}
 	
 	/**
@@ -143,8 +144,47 @@ class RPG
 	{
 		if (self::$_input === null)
 		{
-			self::$_input = new RPG_Input;
+			self::$_input = RPG_Input::getInstance();
 		}
 		return self::$_input;
+	}
+	
+	/**
+	 * Returns a URL string suitable for inclusion into an anchor tag,
+	 * given the controller, action, params, and query.
+	 * 
+	 * For example:
+	 * echo RPG::url('test', 'something', array('one', 'two'), array('q' => 'value'));
+	 * // => [theBaseUrl]/test/something/one/two?q=value
+	 *
+	 * @param  string $controller  Use "*" for current controller.
+	 * @param  string $action      Use "*" for current action.
+	 * @param  array  $params      Slash-separated params included after the action.
+	 * @param  array  $query       Parameters to be included in the query string.
+	 * @return string  The constructed URL.
+	 */
+	public static function url($controller = '*', $action = '*',
+		array $params = array(), array $query = array())
+	{
+		if ($controller === '*')
+		{
+			$controller = self::get('current_controller', 'index');
+		}
+		if ($action === '*')
+		{
+			$action = self::get('current_action', 'index');
+		}
+		
+		$url = self::config('baseUrl') . "/$controller/$action";
+		if (!empty($params))
+		{
+			$url .= '/' . implode('/', $params);
+		}
+		if (!empty($query))
+		{
+			$url .= '?' . http_build_query($query);
+		}
+		
+		return $url;
 	}
 }
