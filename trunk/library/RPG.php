@@ -51,6 +51,13 @@ final class RPG
 	private static $_input = null;
 	
 	/**
+	 * Router library instance.
+	 *
+	 * @var RPG_Router
+	 */
+	private static $_router = null;
+	
+	/**
 	 * Loads a model class and instantiates it.
 	 */
 	public static function model($name)
@@ -150,22 +157,45 @@ final class RPG
 	}
 	
 	/**
-	 * Returns a URL string suitable for inclusion into an anchor tag,
-	 * given the controller, action, params, and query.
+	 * Fetches an instance of the router library, initializing if necessary.
+	 *
+	 * @param  string $controllerDir Directory where controllers are located.
+	 * @return RPG_Router
+	 */
+	public static function router($controllerDir = '')
+	{
+		if (self::$_router === null)
+		{
+			if (empty($controllerDir))
+			{
+				throw new RPG_Exception('Controller directory cannot be empty on first call to RPG::router()');
+			}
+			
+			self::$_router = RPG_Router::getInstance();
+			self::$_router->setControllerDir($controllerDir);
+		}
+		return self::$_router;
+	}
+	
+	/**
+	 * Returns a URL string suitable for inclusion into an anchor tag.
 	 * 
 	 * For example:
-	 * echo RPG::url('test', 'something', array('one', 'two'), array('q' => 'value'));
+	 * echo RPG::url('test/something/one/two'), array('q' => 'value'));
 	 * // => [theBaseUrl]/test/something/one/two?q=value
 	 *
-	 * @param  string $controller  Use "*" for current controller.
-	 * @param  string $action      Use "*" for current action.
-	 * @param  array  $params      Slash-separated params included after the action.
-	 * @param  array  $query       Parameters to be included in the query string.
+	 * In addition, an asterisk can be used in the place of the controller
+	 * or action, which will be replaced with their current values.
+	 *
+	 * @param  string $path  URL path, formed like controller/action/params...
+	 * @param  array  $query Parameters to be included in the query string.
 	 * @return string  The constructed URL.
 	 */
-	public static function url($controller = '*', $action = '*',
-		array $params = array(), array $query = array())
+	public static function url($path, array $query = array())
 	{
+		$parts = self::router()->getUrlParts($path);
+		extract($parts);
+		
 		if ($controller === '*')
 		{
 			$controller = self::get('current_controller', 'index');
@@ -186,5 +216,19 @@ final class RPG
 		}
 		
 		return $url;
+	}
+	
+	/**
+	 * Receiver for standard PHP errors, turning them into exceptions.
+	 *
+	 * @param  integer $errNo
+	 * @param  string  $errMsg
+	 * @param  string  $errFile
+	 * @param  integer $errLine
+	 * @throws Exception
+	 */
+	public static function handlePhpError($errNo, $errMsg, $errFile, $errLine)
+	{
+		throw new RPG_Exception($errMsg, $errNo, $errFile, $errLine);
 	}
 }

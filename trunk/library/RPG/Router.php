@@ -31,11 +31,46 @@
 class RPG_Router
 {
 	/**
-	 * Initializes the router with the given controller directory.
+	 * Singleton instance of this class.
 	 *
-	 * @param  string $controllerDir  Path to the base controller directory.
+	 * @var RPG_Router
 	 */
-	protected function __construct($controllerDir)
+	protected static $_instance = null;
+	
+	/**
+	 * Path to the directory containing controllers.
+	 *
+	 * @var string
+	 */
+	protected $_controllerDir = '';
+	
+	/**
+	 * Initializes the router. Protected to enforce singleton pattern.
+	 */
+	protected function __construct()
+	{
+		
+	}
+	
+	/**
+	 * Initializes a singleton instance of this class.
+	 */
+	public static function getInstance($controllerDir = '')
+	{
+		if (self::$_instance === null)
+		{
+			self::$_instance = new self();
+		}
+		
+		return self::$_instance;
+	}
+	
+	/**
+	 * Sets the controller directory.
+	 *
+	 * @param  string $controllerDir  Path to the base controller directory
+	 */
+	public function setControllerDir($controllerDir = '')
 	{
 		if (is_dir($controllerDir))
 		{
@@ -43,27 +78,25 @@ class RPG_Router
 		}
 		else
 		{
-			throw new Exception('Specified controller directory does not exist.');
+			throw new RPG_Exception('Specified controller directory does not exist.');
 		}
 	}
 	
 	/**
-	 * Initializes the router and processes the current request.
-	 *
-	 * @param  string $controllerDir  Path to the base controller directory.
+	 * Processes the current request, handing it off to the proper
+	 * controller and action.
 	 */
-	public static function processRequest($controllerDir)
+	public function processRequest()
 	{
-		$router = new self($controllerDir);
-		$path   = RPG::input()->getPath();
-		$parts  = $router->_getUrlParts($path);
+		$path  = RPG::input()->getPath();
+		$parts = $this->getUrlParts($path);
 		
-		$controller = $router->_getController($parts['controller']);
-		$action     = $router->_getActionName($parts['action']);
+		$controller = $this->_getController($parts['controller']);
+		$action     = $this->_getActionName($parts['action']);
 		
 		if (!method_exists($controller, $action))
 		{
-			throw new Exception('Action "' . $action . '" does not exist.');
+			throw new RPG_Exception('Action "' . $action . '" does not exist.');
 		}
 		
 		call_user_func_array(array($controller, $action), $parts['params']);
@@ -76,7 +109,7 @@ class RPG_Router
 	 * @param  string $path
 	 * @return array  ('controller' => ..., 'action' => ..., 'params' => ...)
 	 */
-	protected function _getUrlParts($path)
+	public function getUrlParts($path)
 	{
 		// Split the path into controller/action/params
 		$parts = explode('/', trim($path, '/'));
@@ -126,7 +159,7 @@ class RPG_Router
 		
 		if (!file_exists($fileName))
 		{
-			throw new Exception('Controller "' . $className . '" not found.');
+			throw new RPG_Exception('Controller "' . $className . '" not found in "' . $this->_controllerDir . '".');
 		}
 		
 		RPG::set('current_controller', $urlPart);
