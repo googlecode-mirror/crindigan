@@ -37,27 +37,33 @@ function __autoload($className)
 	return false;
 }
 
+// Set up the error handler
+set_error_handler(array('RPG', 'handlePhpError'));
+
 // Initialize the configuration array
 $config = require RPG_ROOT . '/config.php';
 
 try
 {
 	RPG::setConfig($config);
-	RPG_Router::processRequest(RPG_ROOT . '/controllers');
+	RPG::router(RPG_ROOT . '/controllers')->processRequest();
 }
-catch (Exception $ex)
+catch (RPG_Exception $ex)
 {
 	echo '<html>
 <head>
 	<title>Application Error</title>
 </head>
 <body>
-	<h1>Application Error</h1>
-	<p>There has been an internal error within Anfiniti RPG.</p>', "\n";
+	<h1>Application Error</h1>', "\n";
 	
 	if (isset($config['debug']) AND $config['debug'] === true)
 	{
-		echo '<p><strong>Returned Error:</strong> ', $ex->getMessage(), "</p>\n";
+		echo $ex;
+	}
+	else
+	{
+		echo "There has been an internal error within Anfiniti RPG.\n";
 	}
 	
 	echo "</body>\n</html>";

@@ -77,7 +77,7 @@ class RPG_Input
 		
 		if (!$this->isGet() AND !$this->isPost())
 		{
-			throw new Exception('Invalid request method - may only accept GET and POST.');
+			throw new RPG_Exception('Invalid request method - may only accept GET and POST.');
 		}
 	}
 	
@@ -86,7 +86,7 @@ class RPG_Input
 	 *
 	 * @return RPG_Input
 	 */
-	public function getInstance()
+	public static function getInstance()
 	{
 		if (self::$_instance === null)
 		{
