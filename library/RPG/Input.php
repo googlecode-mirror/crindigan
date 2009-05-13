@@ -23,7 +23,7 @@
  */
 
 /**
- * Description
+ * Handles information from the HTTP request and input sanitizing.
  * 
  * @package AnfinitiRPG
  */
@@ -44,9 +44,8 @@ class RPG_Input
 	protected $_requestMethod = '';
 	
 	/**
-	 * Constructs an instance of the input class, cleansing out some
-	 * potential attack vectors and reversing magic_quotes if needed.
-	 * Protected to enforce the singleton pattern.
+	 * Constructs an instance of the input class, reversing magic_quotes
+	 * if needed. Protected to enforce the singleton pattern.
 	 */
 	protected function __construct()
 	{

@@ -22,6 +22,19 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GPL
  */
 
+/*
+	CREATE TABLE hello (
+		hello_key varchar(32),
+		hello_msg text,
+		INDEX hello_key (hello_key)
+	);
+*/
+
+/**
+ * Test controller for various things.
+ *
+ * @package AnfinitiRPG
+ */
 class HelloController extends RPG_Controller
 {
 	/**
@@ -60,5 +73,35 @@ class HelloController extends RPG_Controller
 		{
 			echo filter_id($filter), ": $filter<br />\n";
 		}
+	}
+	
+	// Below routines will be inside of models in the future.
+	// Just here for the purpose of quick testing.
+	
+	public function doList()
+	{		
+		$list = RPG::database()->queryPair("SELECT hello_key, hello_msg FROM hello");
+		foreach ($list AS $key => $msg)
+		{
+			echo htmlentities($key), ': ', htmlentities($msg), "<br />\n";
+		}
+	}
+	
+	public function doInsert($key, $msg)
+	{
+		RPG::database()->insert('hello', array('hello_key' => $key, 'hello_msg' => $msg));
+	}
+	
+	public function doUpdate($key, $msg)
+	{
+		$db = RPG::database();
+		$db->update('hello', array('hello_msg' => $msg),
+			'hello_key = ' . $db->prepareValue($key));
+	}
+	
+	public function doDelete($key)
+	{
+		$db = RPG::database();
+		$db->delete('hello', 'hello_key = ' . $db->prepareValue($key));
 	}
 }
