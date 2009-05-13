@@ -60,7 +60,8 @@ class RPG_Exception extends Exception
 		$out .= "<h3>Stack Trace</h3>\n";
 		
 		// It's duplicating the top entry for some reason
-		$trace = array_slice($this->getTrace(), 1);
+		$trace = $this->getTrace();
+		//array_shift($trace);
 		
 		foreach ($trace AS $entry)
 		{
@@ -76,6 +77,13 @@ class RPG_Exception extends Exception
 		return $out;
 	}
 	
+	/**
+	 * Given a stack trace entry, return HTML-formatted source lines, with
+	 * line numbers, and the offending line highlighted.
+	 *
+	 * @param  array $trace
+	 * @return string
+	 */
 	protected function _getSourceLines(array $trace)
 	{
 		$start = $trace['line'] - 5;
@@ -98,12 +106,27 @@ class RPG_Exception extends Exception
 		return $out . "</pre>\n";
 	}
 	
+	/**
+	 * Formats a single line of source code, stripping HTML, changing tabs
+	 * to spaces, and underlining the function call.
+	 *
+	 * @param  string $line
+	 * @param  string $function
+	 * @return string
+	 */
 	protected function _formatSource($line, $function)
 	{
 		$line = htmlentities(str_replace("\t", '    ', rtrim($line)));
 		return str_replace($function, "<ins>$function</ins>", $line);
 	}
 	
+	/**
+	 * Transforms an array of function arguments into a comma-separated
+	 * and printable parameter list, via var_export.
+	 *
+	 * @param  array $args
+	 * @return string
+	 */
 	protected function _formatArgs(array $args)
 	{
 		if (empty($args))

@@ -25,4 +25,16 @@
 return array(
 	'baseUrl' => '/rpg2',
 	'debug'   => true,
+	'database' => array(
+		'username' => 'root',
+		'password' => 'test',
+		'database' => 'rpg2',
+		'server'   => 'localhost',
+	),
+	'extDatabase' => array(
+		'username' => 'root',
+		'password' => 'test',
+		'database' => 'forum',
+		'server'   => 'localhost',
+	),
 );

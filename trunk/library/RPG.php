@@ -58,6 +58,14 @@ final class RPG
 	private static $_router = null;
 	
 	/**
+	 * Array of RPG_Database instances, to support having multiple connections
+	 * open at once. Indexed by their configuration key.
+	 *
+	 * @var array of RPG_Database
+	 */
+	private static $_databases = array();
+	
+	/**
 	 * Loads a model class and instantiates it.
 	 */
 	public static function model($name)
@@ -216,6 +224,42 @@ final class RPG
 		}
 		
 		return $url;
+	}
+	
+	/**
+	 * Returns an instance of RPG_Database, creating it if neccessary, given
+	 * the config file key containing the connection information. If the key
+	 * is not given, it uses "database" by default. If the second parameter is
+	 * present, it will create a new database connection with the given params,
+	 * and reference it with the given $configKey.
+	 *
+	 * @param  string $configKey
+	 * @return RPG_Database
+	 */
+	public static function database($configKey = null, array $newParams = array())
+	{
+		if ($configKey === null)
+		{
+			$configKey = 'database';
+		}
+		
+		// Create a new instance if it doesn't exist
+		if (!isset(self::$_databases[$configKey])
+			OR !(self::$_databases[$configKey] instanceof RPG_Database))
+		{
+			// If $newParams is given, instantiate RPG_Database with those.
+			// Otherwise, use the params inside the config key.
+			if (!empty($newParams))
+			{
+				self::$_databases[$configKey] = new RPG_Database($newParams);
+			}
+			else
+			{
+				self::$_databases[$configKey] = new RPG_Database(self::config($configKey));
+			}
+		}
+		
+		return self::$_databases[$configKey];
 	}
 	
 	/**

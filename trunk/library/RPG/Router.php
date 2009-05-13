@@ -149,7 +149,7 @@ class RPG_Router
 	 */
 	protected function _getController($urlPart)
 	{
-		$urlPart  = preg_replace('#[^a-z0-9:]#', '', $urlPart);
+		$urlPart  = preg_replace('#[^a-z0-9:]#', '', strtolower($urlPart));
 		$urlPart  = preg_replace('#:{2,}#', ':', $urlPart);
 		$fileName = $this->_controllerDir . '/' . str_replace(':', '/', $urlPart) . '.php';
 		
