@@ -49,29 +49,8 @@ class RPG_Input
 	 */
 	protected function __construct()
 	{
-		// reverse the effects of magic quotes if necessary
-		if (get_magic_quotes_gpc() === 1)
-		{
-			$this->_stripSlashes($_GET);
-			$this->_stripSlashes($_POST);
-			$this->_stripSlashes($_COOKIE);
-
-			if (is_array($_FILES))
-			{
-				foreach ($_FILES AS &$file)
-				{
-					$file['tmp_name'] = str_replace('\\', '\\\\', $file['tmp_name']);
-				}
-				$this->_stripSlashes($_FILES);
-			}
-		}
-		
-		if (get_magic_quotes_runtime() === 1)
-		{
-			set_magic_quotes_runtime(0);
-			@ini_set('magic_quotes_sybase', 0);
-		}
-		
+		$this->_fixMagicQuotes();
+				
 		$this->_requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
 		
 		if (!$this->isGet() AND !$this->isPost())
@@ -165,6 +144,36 @@ class RPG_Input
 		
 		$this->_path = $path;
 		return $path;
+	}
+	
+	/**
+	 * Reverses the effects of magic_quotes settings, if neccessary.
+	 * Recursively strips slashes in _GET, _POST, _COOKIE, and _FILES,
+	 * and disables magic_quotes_runtime if enabled.
+	 */
+	protected function _fixMagicQuotes()
+	{
+		if (get_magic_quotes_gpc() === 1)
+		{
+			$this->_stripSlashes($_GET);
+			$this->_stripSlashes($_POST);
+			$this->_stripSlashes($_COOKIE);
+
+			if (is_array($_FILES))
+			{
+				foreach ($_FILES AS &$file)
+				{
+					$file['tmp_name'] = str_replace('\\', '\\\\', $file['tmp_name']);
+				}
+				$this->_stripSlashes($_FILES);
+			}
+		}
+		
+		if (get_magic_quotes_runtime() === 1)
+		{
+			set_magic_quotes_runtime(0);
+			@ini_set('magic_quotes_sybase', 0);
+		}
 	}
 	
 	/**

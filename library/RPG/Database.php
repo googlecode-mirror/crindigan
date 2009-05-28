@@ -51,6 +51,13 @@ class RPG_Database
 	protected $_tablePrefix = '';
 	
 	/**
+	 * Temporary bind data when processing bound parameters.
+	 *
+	 * @var array
+	 */
+	protected $_tempBind = array();
+	
+	/**
 	 * Creates an internal instance of MySQLi and connects to the MySQL
 	 * server, with the given parameters.
 	 *
@@ -63,6 +70,11 @@ class RPG_Database
 		$this->_mysqli = new MySQLi($params['server'], $params['username'],
 			$params['password'], $params['database']);
 		
+		if ($params['prefix'])
+		{
+			$this->setTablePrefix($params['prefix']);
+		}
+		
 		if (mysqli_connect_errno())
 		{
 			throw new RPG_Exception('MySQLi connection error: ' . mysqli_connect_error());
@@ -73,13 +85,27 @@ class RPG_Database
 	 * Executes the given SQL query on the database. If a SELECT, SHOW,
 	 * DESCRIBE, or EXPLAIN query is run, this function will return an
 	 * RPG_Database_Result instance. Otherwise, it will return a boolean
-	 * value, signifying whether the query succeeded or not.
+	 * value, signifying whether the query succeeded or not. To apply the
+	 * current table prefix to a table, surround it with braces:
+	 *
+	 * {table_name} => `prefix_table_name`
 	 *
 	 * @param  string $sql
+	 * @param  array $bind Array of param_name => value. :param_name in the SQL
+	 *                     will be replaced by value. ?param_name in the SQL
+	 *                     will be replaced by the raw uncleansed value. For
+	 *                     simple queries, you can also skip the param_name
+	 *                     and mark your placeholders as :0, :1, etc.
 	 * @return boolean|RPG_Database_Result
 	 */
-	public function query($sql)
+	public function query($sql, array $bind = array())
 	{
+		// only run through the replacements if things can be done
+		if (!empty($bind) OR strpos($sql, '{') !== false)
+		{
+			$sql = $this->_processReplacements($sql, $bind);
+		}
+		
 		$result = $this->_mysqli->query($sql);
 		
 		if ($result === false)
@@ -102,60 +128,65 @@ class RPG_Database
 	 * Executes the given SQL and calls the fetch() method on the result.
 	 *
 	 * @param  string $sql
+	 * @param  array $bind
 	 * @param  integer $mode
 	 * @return array
 	 */
-	public function queryFirst($sql, $mode = self::ASSOC)
+	public function queryFirst($sql, array $bind = array(), $mode = self::ASSOC)
 	{
-		return $this->query($sql)->fetch($mode);
+		return $this->query($sql, $bind)->fetch($mode);
 	}
 	
 	/**
 	 * Executes the given SQL and calls the fetchOne() method on the result.
 	 *
 	 * @param  string $sql
+	 * @param  array $bind
 	 * @return mixed
 	 */
-	public function queryOne($sql)
+	public function queryOne($sql, array $bind = array())
 	{
-		return $this->query($sql)->fetchOne();
+		return $this->query($sql, $bind)->fetchOne();
 	}
 	
 	/**
 	 * Executes the given SQL and calls the fetchAll() method on the result.
 	 *
 	 * @param  string $sql
+	 * @param  array $bind
 	 * @param  integer $mode
 	 * @return array
 	 */
-	public function queryAll($sql, $mode = self::ASSOC)
+	public function queryAll($sql, array $bind = array(), $mode = self::ASSOC)
 	{
-		return $this->query($sql)->fetchAll($mode);
+		return $this->query($sql, $bind)->fetchAll($mode);
 	}
 	
 	/**
 	 * Executes the given SQL and calls the fetchMapped() method on the result.
 	 *
 	 * @param  string $sql
+	 * @param  array $bind
 	 * @param  string $keyColumn
 	 * @return array
 	 */
-	public function queryMapped($sql, $keyColumn)
+	public function queryMapped($sql, array $bind = array(), $keyColumn)
 	{
-		return $this->query($sql)->fetchMapped($keyColumn);
+		return $this->query($sql, $bind)->fetchMapped($keyColumn);
 	}
 	
 	/**
 	 * Executes the given SQL and calls the fetchPair() method on the result.
 	 *
 	 * @param  string $sql
+	 * @param  array $bind
 	 * @param  string $keyColumn
 	 * @param  string $valueColumn
 	 * @return array
 	 */
-	public function queryPair($sql, $keyColumn = null, $valueColumn = null)
+	public function queryPair($sql, array $bind = array(), $keyColumn = null, $valueColumn = null)
 	{
-		return $this->query($sql)->fetchPair($keyColumn, $valueColumn);
+		return $this->query($sql, $bind)->fetchPair($keyColumn, $valueColumn);
 	}
 	
 	/**
@@ -169,19 +200,21 @@ class RPG_Database
 	{
 		$columnNames = array();
 		$fieldValues = array();
+		$bindValues  = array();
 		foreach ($fields AS $col => $value)
 		{
 			$columnNames[] = $this->prepareIdentifier($col);
-			$fieldValues[] = $this->prepareValue($value);
+			$fieldValues[] = ':' . $col;
+			$bindValues[$col] = $value;
 		}
 		
-		$table = $this->prepareIdentifier($this->_tablePrefix . $table);
+		$table = '{' . $table . '}';
 		$query = "INSERT INTO {$table} (\n"
 		       . "\t" . implode(', ', $columnNames) . "\n"
 		       . ") VALUES (\n"
 		       . "\t" . implode(', ', $fieldValues) . "\n"
 		       . ")";
-		$this->query($query);
+		$this->query($query, $bindValues);
 		
 		return $this->_mysqli->insert_id;
 	}
@@ -193,18 +226,21 @@ class RPG_Database
 	 * @param  array $fields Array of column_name => value. If value is an
 	 *                       expression, like "column_name + 5", prepend the
 	 *                       key with "expr:" like "expr:col" => "col + 5"
-	 * @param  string $condition The WHERE clause for the update
+	 * @param  array $condition The WHERE clause for the update. The first
+	 *                          element is the SQL, and the following are
+	 *                          key/value pairs for parameter binding.
 	 * @return integer The number of affected rows
 	 */
-	public function update($table, array $fields, $condition = '')
+	public function update($table, array $fields, array $condition = array())
 	{
 		if (empty($fields))
 		{
 			return;
 		}
 		
-		$fieldList = '';
-		$isExpr    = false;
+		$fieldList  = '';
+		$isExpr     = false;
+		$bindValues = array();
 		foreach ($fields AS $col => $value)
 		{
 			if (strpos($col, 'expr:') === 0)
@@ -213,17 +249,26 @@ class RPG_Database
 				$col = substr($col, 5);
 			}
 			
-			$fieldList .= "\t" . $this->prepareIdentifier($col) . ' = ' . 
-				($isExpr ? $value : $this->prepareValue($value)) . "\n";
+			// make the replacements :__col_name to avoid interfering with
+			// the where condition
+			$fieldList .= "\n\t" . $this->prepareIdentifier($col) . ' = ' . 
+				($isExpr ? '?' : ':') . '__' . $col . ',';
+			$bindValues['__' . $col] = $value;
 			$isExpr = false;
 		}
 		
-		$table = $this->prepareIdentifier($this->_tablePrefix . $table);
+		if (!empty($condition))
+		{
+			$whereClause = array_shift($condition);
+			$bindValues  = array_merge($bindValues, $condition);
+		}
+		
+		$table = '{' . $table . '}';
 		$query = "UPDATE {$table}\n"
-		       . "SET\n"
-		       . $fieldList
-		       . (empty($condition) ? '' : "WHERE $condition");
-		$this->query($query);
+		       . "SET"
+		       . substr($fieldList, 0, -1) . "\n"
+		       . (empty($condition) ? '' : "WHERE $whereClause");
+		$this->query($query, $bindValues);
 		
 		return $this->_mysqli->affected_rows;
 	}
@@ -232,15 +277,20 @@ class RPG_Database
 	 * Deletes data from the given table.
 	 *
 	 * @param  string $table
-	 * @param  string $condition The WHERE clause of the delete
+	 * @param  array $condition The WHERE clause of the delete
 	 * @return integer The number of affected rows
 	 */
-	public function delete($table, $condition = '')
+	public function delete($table, array $condition = array())
 	{
-		$table = $this->prepareIdentifier($this->_tablePrefix . $table);
+		if (!empty($condition))
+		{
+			$whereClause = array_shift($condition);
+		}
+		
+		$table = '{' . $table . '}';
 		$query = "DELETE FROM {$table}\n"
-		       . (empty($condition) ? '' : "WHERE $condition");
-		$this->query($query);
+		       . (empty($whereClause) ? '' : "WHERE $whereClause");
+		$this->query($query, $condition);
 		
 		return $this->_mysqli->affected_rows;
 	}
@@ -289,6 +339,66 @@ class RPG_Database
 		}
 		
 		return $this->_mysqli->real_escape_string($value);
+	}
+	
+	/**
+	 * Process replacements, including table prefixes and bound parameters.
+	 *
+	 * @param  string $sql
+	 * @param  array $bind
+	 * @return string Processed SQL.
+	 */
+	protected function _processReplacements($sql, array $bind)
+	{
+		// replace {table_name} with `prefix_table_name`
+		$sql = preg_replace_callback('#\{(\w+)\}#', array($this, '_processTableName'), $sql);
+		
+		// replace :param_name with prepareValue($bind['param_name'])
+		// replace ?param_name with raw $bind['param_name']
+		$this->_tempBind = $bind;
+		$sql = preg_replace_callback('#(:|\?)(\w+)#', array($this, '_processBind'), $sql);
+		$this->_tempBind = array();
+		
+		return $sql;
+	}
+	
+	/**
+	 * Applies the table prefix to the match and quotes it with backticks.
+	 *
+	 * @param  array $matches
+	 * @return string
+	 */
+	protected function _processTableName($matches)
+	{
+		return $this->prepareIdentifier($this->_tablePrefix . $matches[1]);
+	}
+	
+	/**
+	 * Replaces the parameter placeholders with their actual value.
+	 *
+	 * @param  array $matches
+	 * @return string
+	 * @throws RPG_Exception if a placeholder has no replacement
+	 */
+	protected function _processBind($matches)
+	{
+		if (is_numeric($matches[2]))
+		{
+			$matches[2] = (int) $matches[2];
+		}
+		
+		if (!isset($this->_tempBind[$matches[2]]))
+		{
+			throw new RPG_Exception('No bind replacement for ' . $matches[0] . ' in query.');
+		}
+		
+		$value = $this->_tempBind[$matches[2]];
+		if ($matches[1] === ':')
+		{
+			$value = $this->prepareValue($value);
+		}
+		
+		return $value;
 	}
 	
 	/**

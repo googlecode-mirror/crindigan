@@ -58,12 +58,24 @@ final class RPG
 	private static $_router = null;
 	
 	/**
+	 * Current user instance.
+	 *
+	 * @var RPG_User
+	 */
+	private static $_user = null;
+	
+	/**
 	 * Array of RPG_Database instances, to support having multiple connections
 	 * open at once. Indexed by their configuration key.
 	 *
 	 * @var array of RPG_Database
 	 */
 	private static $_databases = array();
+	
+	/**
+	 * Private constructor to enforce static class.
+	 */
+	private function __construct() {}
 	
 	/**
 	 * Loads a model class and instantiates it.
@@ -269,7 +281,7 @@ final class RPG
 	 * @param  string  $errMsg
 	 * @param  string  $errFile
 	 * @param  integer $errLine
-	 * @throws Exception
+	 * @throws RPG_Exception
 	 */
 	public static function handlePhpError($errNo, $errMsg, $errFile, $errLine)
 	{
