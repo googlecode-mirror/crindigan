@@ -91,15 +91,22 @@ class RPG_Database
 	 * {table_name} => `prefix_table_name`
 	 *
 	 * @param  string $sql
-	 * @param  array $bind Array of param_name => value. :param_name in the SQL
+	 * @param  mixed $bind Array of param_name => value. :param_name in the SQL
 	 *                     will be replaced by value. ?param_name in the SQL
 	 *                     will be replaced by the raw uncleansed value. For
 	 *                     simple queries, you can also skip the param_name
-	 *                     and mark your placeholders as :0, :1, etc.
+	 *                     and mark your placeholders as :0, :1, etc. You can
+	 *                     also put a static value, which will be converted
+	 *                     into an array with one element.
 	 * @return boolean|RPG_Database_Result
 	 */
-	public function query($sql, array $bind = array())
+	public function query($sql, $bind = array())
 	{
+		if (is_string($bind) OR is_numeric($bind))
+		{
+			$bind = array($bind);
+		}
+		
 		// only run through the replacements if things can be done
 		if (!empty($bind) OR strpos($sql, '{') !== false)
 		{
@@ -132,7 +139,7 @@ class RPG_Database
 	 * @param  integer $mode
 	 * @return array
 	 */
-	public function queryFirst($sql, array $bind = array(), $mode = self::ASSOC)
+	public function queryFirst($sql, $bind = array(), $mode = self::ASSOC)
 	{
 		return $this->query($sql, $bind)->fetch($mode);
 	}
@@ -144,7 +151,7 @@ class RPG_Database
 	 * @param  array $bind
 	 * @return mixed
 	 */
-	public function queryOne($sql, array $bind = array())
+	public function queryOne($sql, $bind = array())
 	{
 		return $this->query($sql, $bind)->fetchOne();
 	}
@@ -157,7 +164,7 @@ class RPG_Database
 	 * @param  integer $mode
 	 * @return array
 	 */
-	public function queryAll($sql, array $bind = array(), $mode = self::ASSOC)
+	public function queryAll($sql, $bind = array(), $mode = self::ASSOC)
 	{
 		return $this->query($sql, $bind)->fetchAll($mode);
 	}
@@ -170,7 +177,7 @@ class RPG_Database
 	 * @param  string $keyColumn
 	 * @return array
 	 */
-	public function queryMapped($sql, array $bind = array(), $keyColumn)
+	public function queryMapped($sql, $bind = array(), $keyColumn)
 	{
 		return $this->query($sql, $bind)->fetchMapped($keyColumn);
 	}
@@ -184,7 +191,7 @@ class RPG_Database
 	 * @param  string $valueColumn
 	 * @return array
 	 */
-	public function queryPair($sql, array $bind = array(), $keyColumn = null, $valueColumn = null)
+	public function queryPair($sql, $bind = array(), $keyColumn = null, $valueColumn = null)
 	{
 		return $this->query($sql, $bind)->fetchPair($keyColumn, $valueColumn);
 	}

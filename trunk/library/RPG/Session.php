@@ -23,7 +23,7 @@
  */
 
 /**
- *
+ * Custom database handler for PHP sessions, along with other shortcuts.
  */
 class RPG_Session
 {
@@ -59,38 +59,165 @@ class RPG_Session
 		session_start();
 	}
 	
+	/**
+	 * Destructor. Calls session_write_close explicitly to work around the
+	 * fact that objects are destroyed before sessions are written.
+	 */
 	public function __destruct()
 	{
 		session_write_close();
 	}
 	
+	/**
+	 * Opens the session.
+	 *
+	 * @param  string $savePath unused
+	 * @param  string $sessionName unused
+	 * @return bool
+	 */
 	public function open($savePath, $sessionName)
 	{
 		return true;
 	}
 	
+	/**
+	 * Closes the session.
+	 *
+	 * @return bool
+	 */
 	public function close()
 	{
 		return true;
 	}
 	
+	/**
+	 * Reads and returns the data stored with the given $sessionId.
+	 *
+	 * @param  string $sessionId
+	 * @return string The session data
+	 */
 	public function read($sessionId)
 	{
-		RPG::database()->queryFirst("SELECT * FROM ");
+		$sessionData = RPG::database()->queryOne(
+			"SELECT session_data FROM {session} WHERE session_id = :0", $sessionId);
+		
+		return $sessionData;
 	}
 	
+	/**
+	 * Writes the given $sessionData to the record specified by $sessionId.
+	 *
+	 * @param  string $sessionId
+	 * @param  string $sessionData
+	 * @return bool
+	 */
 	public function write($sessionId, $sessionData)
 	{
+		RPG::database()->query(
+			'INSERT INTO {session} (
+			     session_id, session_data, session_time
+			 )
+			 VALUES (
+			     :session_id, :session_data, :session_time
+			 )
+			 ON DUPLICATE KEY UPDATE
+			 	session_data = :session_data,
+			 	session_time = :session_time',
+			 array(
+			 	'session_id'   => $sessionId,
+			 	'session_data' => $sessionData,
+			 	'session_time' => RPG_NOW,
+			 )
+		);
 		
+		return true;
 	}
 	
+	/**
+	 * Destroys a single session given the session ID.
+	 *
+	 * @param  string $sessionId
+	 * @return bool
+	 */
 	public function destroy($sessionId)
 	{
-		
+		RPG::database()->delete('session', array('session_id = :0', $sessionId));
+		return true;
 	}
 	
+	/**
+	 * Cleans up sessions older than $maxLifetime seconds.
+	 *
+	 * @param  int $maxLifetime
+	 * @return bool
+	 */
 	public function gc($maxLifetime)
 	{
+		RPG::database()->delete('session', array('session_time < :0', RPG_NOW - $maxLifetime));
+		return true;
+	}
+	
+	/**
+	 * Sets a one-time read value to the given key.
+	 *
+	 * @param  string $key
+	 * @param  mixed $value
+	 */
+	public function setFlash($key, $value)
+	{
+		$_SESSION['_flash'][$key] = $value;
+	}
+	
+	/**
+	 * Retrieves the flash data for a given key, and removes it.
+	 *
+	 * @param  string $key
+	 * @return mixed  The flash data, or null if nonexistant
+	 */
+	public function getFlash($key)
+	{
+		if (!$this->hasFlash($key))
+		{
+			return null;
+		}
 		
+		$val = $_SESSION['_flash'][$key];
+		unset($_SESSION['_flash'][$key]);
+		return $val;
+	}
+	
+	/**
+	 * Checks if there is current flash data for the given key.
+	 *
+	 * @param  string $key
+	 * @return bool
+	 */
+	public function hasFlash($key)
+	{
+		return isset($_SESSION['_flash'][$key]);
+	}
+	
+	/**
+	 * Allows access to $_SESSION variables through object syntax.
+	 * Example: $foo = RPG::session()->something;
+	 *
+	 * @param  string $key
+	 * @return mixed
+	 */
+	public function __get($key)
+	{
+		return $_SESSION['_user'][$key];
+	}
+	
+	/**
+	 * Allows access to $_SESSION variables through object syntax.
+	 * Example: RPG::session()->something = 'foobar';
+	 *
+	 * @param  string $key
+	 * @param  mixed $value
+	 */
+	public function __set($key, $value)
+	{
+		$_SESSION['_user'][$key] = $value;
 	}
 }
