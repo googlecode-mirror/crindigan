@@ -24,6 +24,7 @@
 
 // Bootstrap the system
 define('RPG_ROOT', dirname(__FILE__));
+define('RPG_NOW', time());
 
 // Set up the autoloader
 function __autoload($className)
