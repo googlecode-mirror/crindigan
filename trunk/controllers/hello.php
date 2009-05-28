@@ -80,11 +80,18 @@ class HelloController extends RPG_Controller
 	
 	public function doList()
 	{		
-		$list = RPG::database()->queryPair("SELECT hello_key, hello_msg FROM hello");
+		$list = RPG::database()->queryPair("SELECT hello_key, hello_msg FROM {hello}");
 		foreach ($list AS $key => $msg)
 		{
 			echo htmlentities($key), ': ', htmlentities($msg), "<br />\n";
 		}
+	}
+	
+	public function doView($key)
+	{
+		$name = RPG::database()->queryOne("SELECT hello_msg FROM {hello}
+										   WHERE hello_key = :0", array($key));
+		echo 'Hello, ' . htmlentities($name);
 	}
 	
 	public function doInsert($key, $msg)
@@ -96,12 +103,12 @@ class HelloController extends RPG_Controller
 	{
 		$db = RPG::database();
 		$db->update('hello', array('hello_msg' => $msg),
-			'hello_key = ' . $db->prepareValue($key));
+			array('hello_key = :0', $key));
 	}
 	
 	public function doDelete($key)
 	{
 		$db = RPG::database();
-		$db->delete('hello', 'hello_key = ' . $db->prepareValue($key));
+		$db->delete('hello', array('hello_key = :0', $key));
 	}
 }

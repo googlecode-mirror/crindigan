@@ -22,22 +22,3 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GPL
  */
 
-return array(
-	'baseUrl' => '/rpg2',
-	'debug'   => true,
-	'database' => array(
-		'username' => 'root',
-		'password' => 'test',
-		'database' => 'rpg2',
-		'server'   => 'localhost',
-		'prefix'   => '',
-	),
-	'extDatabase' => array(
-		'username' => 'root',
-		'password' => 'test',
-		'database' => 'forum',
-		'server'   => 'localhost',
-		'prefix'   => 'vb3_',
-	),
-	'sessionLifetime' => 1800,
-);

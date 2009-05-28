@@ -22,3 +22,75 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GPL
  */
 
+/**
+ *
+ */
+class RPG_Session
+{
+	/**
+	 * Initializes the session instance. Sets up the save handler, proper
+	 * cookie params, and starts the session.
+	 */
+	public function __construct()
+	{
+		session_name('rpgsess');
+		
+		// open, close, read, write, destroy, gc
+		session_set_save_handler(
+			array($this, 'open'),
+			array($this, 'close'),
+			array($this, 'read'),
+			array($this, 'write'),
+			array($this, 'destroy'),
+			array($this, 'gc')
+		);
+		
+		$params = session_get_cookie_params();
+		
+		// lifetime, path, domain, secure, httponly
+		session_set_cookie_params(
+			RPG::config('sessionLifetime'),
+			RPG::config('baseUrl') . '/',
+			$params['domain'],
+			$params['secure'],
+			true
+		);
+		
+		session_start();
+	}
+	
+	public function __destruct()
+	{
+		session_write_close();
+	}
+	
+	public function open($savePath, $sessionName)
+	{
+		return true;
+	}
+	
+	public function close()
+	{
+		return true;
+	}
+	
+	public function read($sessionId)
+	{
+		RPG::database()->queryFirst("SELECT * FROM ");
+	}
+	
+	public function write($sessionId, $sessionData)
+	{
+		
+	}
+	
+	public function destroy($sessionId)
+	{
+		
+	}
+	
+	public function gc($maxLifetime)
+	{
+		
+	}
+}
