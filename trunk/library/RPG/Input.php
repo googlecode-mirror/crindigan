@@ -94,6 +94,42 @@ class RPG_Input
 	}
 	
 	/**
+	 * Sets a cookie, applying the cookie prefix given in the configuration.
+	 *
+	 * @param  string $name
+	 * @param  string $value If left alone (as null), will delete the cookie.
+	 * @param  int $expire
+	 * @param  bool $httpOnly
+	 */
+	public function setCookie($name, $value = null, $expire = null, $httpOnly = false)
+	{
+		// TODO: have this in an output/response class?
+		if ($value === null)
+		{
+			$expire = -86400;
+		}
+		else if ($expire === null)
+		{
+			$expire = 86400 * 365;
+		}
+		
+		setcookie(RPG::config('cookiePrefix') . $name, $value, RPG_NOW + $expire,
+			RPG::config('baseUrl') . '/', '', false, $httpOnly);
+	}
+	
+	/**
+	 * Retrieves a cookie, applying the cookie prefix given in the config file.
+	 *
+	 * @param  string $name
+	 * @return string|null
+	 */
+	public function getCookie($name)
+	{
+		$key = RPG::config('cookiePrefix') . $name;
+		return isset($_COOKIE[$key]) ? $_COOKIE[$key] : null;
+	}
+	
+	/**
 	 * Returns the path info for the request.
 	 *
 	 * @return string
@@ -144,6 +180,36 @@ class RPG_Input
 		
 		$this->_path = $path;
 		return $path;
+	}
+	
+	/**
+	 * Gets the browsing user's IP address.
+	 *
+	 * @param  int $length # of parts to return (1.2.3.4)
+	 * @return string
+	 */
+	public function getIP($length = 4)
+	{
+		// needs more, i know
+		$ip = $_SERVER['REMOTE_ADDR'];
+		
+		if ($length === 4)
+		{
+			return $ip;
+		}
+		
+		$parts = array_slice(explode('.', $ip), 0, $length);
+		return implode('.', $parts);
+	}
+	
+	/**
+	 * Gets the browsing user's user agent string.
+	 *
+	 * @return string
+	 */
+	public function getUserAgent()
+	{
+		return $_SERVER['HTTP_USER_AGENT'];
 	}
 	
 	/**

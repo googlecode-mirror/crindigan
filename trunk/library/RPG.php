@@ -58,6 +58,20 @@ final class RPG
 	private static $_router = null;
 	
 	/**
+	 * View/layout library instance.
+	 *
+	 * @var RPG_View
+	 */
+	private static $_view = null;
+	
+	/**
+	 * Current session instance.
+	 *
+	 * @var RPG_Session
+	 */
+	private static $_session = null;
+	
+	/**
 	 * Current user instance.
 	 *
 	 * @var RPG_User
@@ -76,14 +90,6 @@ final class RPG
 	 * Private constructor to enforce static class.
 	 */
 	private function __construct() {}
-	
-	/**
-	 * Loads a model class and instantiates it.
-	 */
-	public static function model($name)
-	{
-		
-	}
 	
 	/**
 	 * Sets the internal $_config property to the given configuration array.
@@ -105,8 +111,13 @@ final class RPG
 	 * @param  string $key
 	 * @return mixed
 	 */
-	public static function config($key)
+	public static function config($key = '')
 	{
+		if (empty($key))
+		{
+			return self::$_config;
+		}
+		
 		if (strpos($key, '/') === false)
 		{
 			return isset(self::$_config[$key]) ? self::$_config[$key] : null;
@@ -128,37 +139,69 @@ final class RPG
 	}
 	
 	/**
-	 * Sets a value to the variable registry.
-	 *
-	 * @param  string $key
-	 * @param  mixed  $value
+	 * Loads a model class and instantiates it.
 	 */
-	public static function set($key, $value)
+	public static function model($name)
 	{
-		self::$_registry[$key] = $value;
+		
 	}
 	
 	/**
-	 * Retrieves a value from the variable registry.
+	 * Fetches the instance of RPG_View, instantiating it if necessary.
 	 *
-	 * @param  string $key
-	 * @param  mixed  $else If the key does not exist, returns this instead.
-	 * @return mixed
+	 * @return RPG_View
 	 */
-	public static function get($key, $else = null)
+	public static function view()
 	{
-		return self::isRegistered($key) ? self::$_registry[$key] : $else;
+		if (self::$_view === null)
+		{
+			self::$_view = new RPG_View();
+		}
+		
+		return self::$_view;
 	}
 	
 	/**
-	 * Returns if a the given key exists in the variable registry.
+	 * Creates and returns an instance of RPG_Template with the given
+	 * template file and variables (optionally).
 	 *
-	 * @param  string $key
-	 * @return boolean
+	 * @param  string $template
+	 * @param  array $vars
+	 * @return RPG_Template
 	 */
-	public static function isRegistered($key)
+	public static function template($template, array $vars = array())
 	{
-		return isset(self::$_registry[$key]);
+		return new RPG_Template($template, $vars);
+	}
+	
+	/**
+	 * Fetches the instance of RPG_Session, instantiating it if necessary.
+	 *
+	 * @return RPG_Session
+	 */
+	public static function session()
+	{
+		if (self::$_session === null)
+		{
+			self::$_session = new RPG_Session();
+		}
+		
+		return self::$_session;
+	}
+	
+	/**
+	 * Fetches the instance of RPG_User, instantiating it if necessary.
+	 *
+	 * @return RPG_User
+	 */
+	public static function user()
+	{
+		if (self::$_user === null)
+		{
+			self::$_user = new RPG_User();
+		}
+		
+		return self::$_user;
 	}
 	
 	/**
@@ -198,47 +241,6 @@ final class RPG
 	}
 	
 	/**
-	 * Returns a URL string suitable for inclusion into an anchor tag.
-	 * 
-	 * For example:
-	 * echo RPG::url('test/something/one/two'), array('q' => 'value'));
-	 * // => [theBaseUrl]/test/something/one/two?q=value
-	 *
-	 * In addition, an asterisk can be used in the place of the controller
-	 * or action, which will be replaced with their current values.
-	 *
-	 * @param  string $path  URL path, formed like controller/action/params...
-	 * @param  array  $query Parameters to be included in the query string.
-	 * @return string  The constructed URL.
-	 */
-	public static function url($path, array $query = array())
-	{
-		$parts = self::router()->getUrlParts($path);
-		extract($parts);
-		
-		if ($controller === '*')
-		{
-			$controller = self::get('current_controller', 'index');
-		}
-		if ($action === '*')
-		{
-			$action = self::get('current_action', 'index');
-		}
-		
-		$url = self::config('baseUrl') . "/$controller/$action";
-		if (!empty($params))
-		{
-			$url .= '/' . implode('/', $params);
-		}
-		if (!empty($query))
-		{
-			$url .= '?' . http_build_query($query);
-		}
-		
-		return $url;
-	}
-	
-	/**
 	 * Returns an instance of RPG_Database, creating it if neccessary, given
 	 * the config file key containing the connection information. If the key
 	 * is not given, it uses "database" by default. If the second parameter is
@@ -272,6 +274,86 @@ final class RPG
 		}
 		
 		return self::$_databases[$configKey];
+	}
+	
+	/**
+	 * Returns a URL string suitable for inclusion into an anchor tag.
+	 * 
+	 * For example:
+	 * echo RPG::url('test/something/one/two'), array('q' => 'value'));
+	 * // => [theBaseUrl]/test/something/one/two?q=value
+	 *
+	 * In addition, an asterisk can be used in the place of the controller
+	 * or action, which will be replaced with their current values.
+	 *
+	 * @param  string $path  URL path, formed like controller/action/params...
+	 * @param  array  $query Parameters to be included in the query string.
+	 * @return string  The constructed URL.
+	 */
+	public static function url($path, array $query = array())
+	{
+		$parts = self::router()->getUrlParts($path);
+		extract($parts);
+		
+		if ($controller === '*')
+		{
+			$controller = self::get('current_controller', 'index');
+		}
+		if ($action === '*')
+		{
+			$action = self::get('current_action', 'index');
+		}
+		
+		$url = self::config('baseUrl') . "/$controller";
+		if ($action !== 'index' OR !empty($params))
+		{
+			$url .= '/' . $action;
+		}
+		
+		if (!empty($params))
+		{
+			$url .= '/' . implode('/', $params);
+		}
+		if (!empty($query))
+		{
+			$url .= '?' . http_build_query($query);
+		}
+		
+		return $url;
+	}
+	
+	/**
+	 * Sets a value to the variable registry.
+	 *
+	 * @param  string $key
+	 * @param  mixed  $value
+	 */
+	public static function set($key, $value)
+	{
+		self::$_registry[$key] = $value;
+	}
+	
+	/**
+	 * Retrieves a value from the variable registry.
+	 *
+	 * @param  string $key
+	 * @param  mixed  $else If the key does not exist, returns this instead.
+	 * @return mixed
+	 */
+	public static function get($key, $else = null)
+	{
+		return self::isRegistered($key) ? self::$_registry[$key] : $else;
+	}
+	
+	/**
+	 * Returns if a the given key exists in the variable registry.
+	 *
+	 * @param  string $key
+	 * @return boolean
+	 */
+	public static function isRegistered($key)
+	{
+		return isset(self::$_registry[$key]);
 	}
 	
 	/**

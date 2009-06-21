@@ -24,6 +24,8 @@
 
 /**
  * Custom database handler for PHP sessions, along with other shortcuts.
+ * 
+ * @package AnfinitiRPG
  */
 class RPG_Session
 {
@@ -33,6 +35,10 @@ class RPG_Session
 	 */
 	public function __construct()
 	{
+		// use sha1 hashing, 5 bits per character (160/5 = 32 bytes)
+		ini_set('session.hash_function', '1');
+		ini_set('session.hash_bits_per_character', '5');
+		
 		session_name('rpgsess');
 		
 		// open, close, read, write, destroy, gc
@@ -121,8 +127,8 @@ class RPG_Session
 			     :session_id, :session_data, :session_time
 			 )
 			 ON DUPLICATE KEY UPDATE
-			 	session_data = :session_data,
-			 	session_time = :session_time',
+			     session_data = :session_data,
+			     session_time = :session_time',
 			 array(
 			 	'session_id'   => $sessionId,
 			 	'session_data' => $sessionData,
@@ -198,6 +204,21 @@ class RPG_Session
 	}
 	
 	/**
+	 * Verifies that the current session is that of a logged in user.
+	 *
+	 * @return bool
+	 */
+	public function isLoggedIn()
+	{
+		if (isset($this->loggedIn) AND $this->loggedIn === true
+			AND isset($this->userId) AND $this->userId > 0)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Allows access to $_SESSION variables through object syntax.
 	 * Example: $foo = RPG::session()->something;
 	 *
@@ -219,5 +240,16 @@ class RPG_Session
 	public function __set($key, $value)
 	{
 		$_SESSION['_user'][$key] = $value;
+	}
+	
+	/**
+	 * Checks if session variable is set.
+	 *
+	 * @param  string $key
+	 * @return bool
+	 */
+	public function __isset($key)
+	{
+		return isset($_SESSION['_user'][$key]);
 	}
 }

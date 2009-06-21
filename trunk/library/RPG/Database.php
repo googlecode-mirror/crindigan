@@ -135,7 +135,7 @@ class RPG_Database
 	 * Executes the given SQL and calls the fetch() method on the result.
 	 *
 	 * @param  string $sql
-	 * @param  array $bind
+	 * @param  mixed $bind
 	 * @param  integer $mode
 	 * @return array
 	 */
@@ -148,7 +148,7 @@ class RPG_Database
 	 * Executes the given SQL and calls the fetchOne() method on the result.
 	 *
 	 * @param  string $sql
-	 * @param  array $bind
+	 * @param  mixed $bind
 	 * @return mixed
 	 */
 	public function queryOne($sql, $bind = array())
@@ -160,7 +160,7 @@ class RPG_Database
 	 * Executes the given SQL and calls the fetchAll() method on the result.
 	 *
 	 * @param  string $sql
-	 * @param  array $bind
+	 * @param  mixed $bind
 	 * @param  integer $mode
 	 * @return array
 	 */
@@ -173,7 +173,7 @@ class RPG_Database
 	 * Executes the given SQL and calls the fetchMapped() method on the result.
 	 *
 	 * @param  string $sql
-	 * @param  array $bind
+	 * @param  mixed $bind
 	 * @param  string $keyColumn
 	 * @return array
 	 */
@@ -186,7 +186,7 @@ class RPG_Database
 	 * Executes the given SQL and calls the fetchPair() method on the result.
 	 *
 	 * @param  string $sql
-	 * @param  array $bind
+	 * @param  mixed $bind
 	 * @param  string $keyColumn
 	 * @param  string $valueColumn
 	 * @return array

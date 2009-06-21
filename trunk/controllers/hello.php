@@ -37,12 +37,20 @@
  */
 class HelloController extends RPG_Controller
 {
+	public function __construct()
+	{
+		parent::__construct();
+		RPG::view()->setLayout('layouts/frontend.php');
+	}
+	
 	/**
 	 * Default action of the hello controller.
 	 */
 	public function doIndex()
 	{
-		echo 'Index action of the hello controller.';
+		RPG::view()->setContent(
+			RPG::template('hello_index.php')->set('somevar', 'hoohah')
+		);
 	}
 	
 	/**
