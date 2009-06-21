@@ -46,8 +46,17 @@ $config = require RPG_ROOT . '/config.php';
 
 try
 {
+	// Initialize the system
 	RPG::setConfig($config);
+	RPG::session();
+	RPG::user();
+	RPG_Template::setPath(RPG_ROOT . '/views');
+	
+	// Process the request
 	RPG::router(RPG_ROOT . '/controllers')->processRequest();
+	
+	// Render the output - TODO: handle styles differently later
+	RPG::view()->addStyleSheet('media/styles/light.css')->render();
 }
 catch (RPG_Exception $ex)
 {

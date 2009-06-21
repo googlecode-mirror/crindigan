@@ -181,6 +181,6 @@ class RPG_Database_Result
 	 */
 	public function __destruct()
 	{
-		$this->_result->free();
+		$this->free();
 	}
 }

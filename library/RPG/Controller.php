@@ -30,6 +30,60 @@
 class RPG_Controller
 {
 	/**
+	 * Constructor.
+	 */
+	public function __construct()
+	{
+		$this->_setupPublicMenu();
+	}
+	
+	/**
+	 * Sets up the navigation for the public side.
+	 */
+	protected function _setupPublicMenu()
+	{
+		RPG::view()
+			->setNavEntry('home', 'home', 'Home', true)
+				->setSubNavEntry('home', array(
+					'home' => 'RPG Home',
+					'home/news' => 'Latest News',
+				))
+			->setNavEntry('character', 'character', 'Characters')
+				->setSubNavEntry('character', array(
+					'party' => 'Manage Parties',
+					'party/exchange' => 'Exchange Members',
+					'recruit' => 'Recruit Soldiers',
+					'character/search' => 'Search Characters',
+				))
+			->setNavEntry('inventory', 'inventory', 'Inventory')
+				->setSubNavEntry('inventory', array(
+					'inventory' => 'View Inventory',
+					'inventory/exchange' => 'Exchange Items',
+					'item-creation' => 'Item Creation',
+				))
+			->setNavEntry('battle', 'battle', 'Battles')
+				->setSubNavEntry('battle', array(
+					'battle'           => 'Active Battles',
+					'battle/my'        => 'My Battles',
+					'battle/challenge' => 'Challenges',
+					'battle/history'   => 'Archives',
+				))
+			->setNavEntry('world', 'world', 'World')
+				->setSubNavEntry('world', array(
+					'world'    => 'Explore',
+					'quest'    => 'Quests',
+					'usershop' => 'Your Shops',
+				))
+			->setNavEntry('library', 'library', 'Library')
+				->setSubNavEntry('library', array(
+					'library/jobs'    => 'Jobs',
+					'library/skills'  => 'Skills',
+					'library/items'   => 'Items',
+					'library/deities' => 'Deities',
+				));
+	}
+	
+	/**
 	 * Lists all available actions to the controller.
 	 */
 	public function doDebugListActions()
