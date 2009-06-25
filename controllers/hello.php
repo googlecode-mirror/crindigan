@@ -40,7 +40,9 @@ class HelloController extends RPG_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		RPG::view()->setLayout('layouts/frontend.php');
+		RPG::view()->setLayout('layouts/frontend.php')
+				   ->setNavCurrent('battle', 'battle/my')
+				   ->setTitle('Hello World');
 	}
 	
 	/**
