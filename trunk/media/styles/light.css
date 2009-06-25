@@ -34,7 +34,7 @@ div#top .toplinks a {
 }
 
 div#top .toplinks a:hover {
-	background-color: #405070;
+	text-decoration: underline;
 }
 
 /*
@@ -48,14 +48,14 @@ div#nav {
 }
 
 div#nav a {
-	padding: .4em .7em;
+	padding: .4em .7em .5em;
 	color: #000000;
 	text-decoration: none;
 	font-weight: bold;
 }
 
 div#nav a:hover, div#nav a.current {
-	background-color: #E9E9FF;
+	background-color: #E4E4FF;
 }
 
 div.subnav {
@@ -65,11 +65,15 @@ div.subnav {
 }
 
 div.subnav a {
-	padding: .4em .5em;
+	padding: .4em .5em .5em;
 	color: #000000;
 	text-decoration: none;
 }
 
 div.subnav a:hover, div.subnav a.current {
 	background-color: #FFFFFF;
+}
+
+div#main {
+	margin: 1em;
 }

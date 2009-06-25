@@ -34,6 +34,9 @@ class RPG_Controller
 	 */
 	public function __construct()
 	{
+		// add YUI 3
+		RPG::view()->addScript('http://yui.yahooapis.com/3.0.0b1/build/yui/yui-min.js', true);
+		
 		$this->_setupPublicMenu();
 	}
 	

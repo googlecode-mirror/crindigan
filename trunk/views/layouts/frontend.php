@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en">
 <head>
-	<title>Anfiniti RPG<?php isset($title) ? $this->escape("- $title") : false; ?></title>
+	<title>Anfiniti RPG<?php isset($title) ? $this->escape(" - $title") : false; ?></title>
 	<?php foreach ($styleSheets AS $style) { ?>
 		<link rel="stylesheet" type="text/css" href="<?php $this->escape($style) ?>" />
 	<?php } ?>
@@ -20,71 +20,65 @@
 	<?php } ?>
 	<script type="text/javascript">
 	
-	var $ = function(id) {
-		if (typeof id == 'string') {
-			id = document.getElementById(id);
-		}
-		return id;
-	};
 	var rpg = {};
 	
-	rpg.NavManager = function()
+	YUI().use('node', function(Y)
 	{
-		this.currentId = '';
-		this.timeout   = 0;
-		this.navIds   = [];
-		
-		this.init = function()
+		rpg.NavManager = function()
 		{
-			var navLinks = $('nav').getElementsByTagName('a');
-			for (var i = 0; i < navLinks.length; i++)
-			{
-				if (navLinks[i].getAttribute('id').substr(0, 4) === 'nav_')
-				{
-					this.addHoverTab(navLinks[i]);
-				}
-			}
-		};
-		
-		this.addHoverTab = function(el)
-		{
-			el.addEventListener('mouseover', function() { rpg.navmanager.start(el); }, false);
-			el.addEventListener('mouseout', function() { rpg.navmanager.cancel(el); }, false);
-			this.navIds.push(el.getAttribute('id'));
-		};
-		
-		this.start = function(el)
-		{
-			if (!this.timeout)
-			{
-				this.timeout   = setTimeout(function() { rpg.navmanager.show(); }, 500);
-				this.currentId = el.getAttribute('id');
-			}
-		};
-		
-		this.show = function()
-		{
-			for (var i = 0; i < this.navIds.length; i++)
-			{
-				$('sub' + this.navIds[i]).style.display = 'none';
-				$(this.navIds[i]).className = '';
-			}
+			this.currentId = '';
+			this.timeout   = 0;
+			this.navIds    = [];
 			
-			$('sub' + this.currentId).style.display = '';
-			$(this.currentId).className = 'current';
+			this.init = function()
+			{
+				Y.get('#nav').queryAll('a').each(function(el) {
+					if (el.get('id').substr(0, 4) === 'nav_') {
+						this.addHoverTab(el);
+					}
+				}, this);
+			};
+			
+			this.addHoverTab = function(el)
+			{
+				el.on('mouseover', function() { this.start(el); }, this);
+				el.on('mouseout', function() { this.cancel(el); }, this);
+				this.navIds.push(el.get('id'));
+			};
+			
+			this.start = function(el)
+			{
+				if (!this.timeout) {
+					this.timeout   = Y.later(500, this, this.show);
+					this.currentId = el.get('id');
+				}
+			};
+			
+			this.show = function()
+			{
+				for (var i = 0, l = this.navIds.length; i < l; i++) {
+					Y.get('#sub' + this.navIds[i]).setStyle('display', 'none');
+					Y.get('#' + this.navIds[i]).removeClass('current');
+				}
+				
+				Y.get('#sub' + this.currentId).setStyle('display', '');
+				Y.get('#' + this.currentId).addClass('current');
+			};
+			
+			this.cancel = function()
+			{
+				if (this.timeout) {
+					this.timeout.cancel()
+					this.timeout = false;
+				}
+			};
 		};
 		
-		this.cancel = function()
-		{
-			clearTimeout(this.timeout);
-			this.timeout = 0;
-		};
-	};
-	
-	window.onload = function() {
-		rpg.navmanager = new rpg.NavManager();
-		rpg.navmanager.init();
-	};
+		Y.on('domready', function() {
+			rpg.navmanager = new rpg.NavManager();
+			rpg.navmanager.init();
+		});
+	});
 	
 	</script>
 </head>
@@ -111,6 +105,22 @@
 	<?php } ?>
 </div>
 <?php } ?>
+
+<div id="main">
+
+	<div id="navbits">
+	
+	</div>
+	
+	<div id="content">
+	<?php echo $content ?>
+	</div>
+	
+	<div id="footer">
+	
+	</div>
+
+</div>
 
 </body>
 </html>
