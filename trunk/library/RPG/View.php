@@ -72,11 +72,34 @@ class RPG_View
 	protected $_navigation = array();
 	
 	/**
+	 * Sub-navigation entries.
+	 *
+	 * @var array
+	 */
+	protected $_subNavigation = array();
+	
+	/**
+	 * Navigation bits/breadcrumbs.
+	 *
+	 * @var array
+	 */
+	protected $_navbits = array();
+	
+	/**
 	 * Constructor.
 	 */
 	public function __construct()
 	{
 		
+	}
+	
+	/**
+	 * 
+	 */
+	public function redirect($path, array $query = array())
+	{
+		header('Location: ' . RPG::url($path, $query));
+		exit;
 	}
 	
 	/**
@@ -100,6 +123,8 @@ class RPG_View
 		{
 			throw new RPG_Exception('Specified layout "' . $layout . '" does not exist.');
 		}
+		
+		$this->setContent('');
 		
 		return $this;
 	}
@@ -258,6 +283,22 @@ class RPG_View
 		return $this->_navigation;
 	}
 	
+	// --------------------------------
+	// Navbit management
+	// --------------------------------
+	
+	public function pushNavbit($text, $url = '')
+	{
+		// if there's no title, keep setting it to the newest navbit
+		if ($this->getLayout()->get('title') === null)
+		{
+			$this->setTitle($text);
+		}
+		
+		$this->_navbits[$url] = $text;
+		return $this;
+	}
+	
 	/**
 	 * Outputs the page to the browser.
 	 * 
@@ -273,6 +314,7 @@ class RPG_View
 			'inlineScript'  => $this->_inlineScript,
 			'navigation'    => $this->_navigation,
 			'subNavigation' => $this->_subNavigation,
+			'navbits'       => $this->_navbits,
 		))->render();
 		
 		$gzworked = false;

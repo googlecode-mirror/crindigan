@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en">
 <head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 	<title>Anfiniti RPG<?php isset($title) ? $this->escape(" - $title") : false; ?></title>
 	<?php foreach ($styleSheets AS $style) { ?>
 		<link rel="stylesheet" type="text/css" href="<?php $this->escape($style) ?>" />
@@ -18,76 +19,23 @@
 		<?php echo $inlineScript ?>
 		</script>
 	<?php } ?>
-	<script type="text/javascript">
-	
-	var rpg = {};
-	
-	YUI().use('node', function(Y)
-	{
-		rpg.NavManager = function()
-		{
-			this.currentId = '';
-			this.timeout   = 0;
-			this.navIds    = [];
-			
-			this.init = function()
-			{
-				Y.get('#nav').queryAll('a').each(function(el) {
-					if (el.get('id').substr(0, 4) === 'nav_') {
-						this.addHoverTab(el);
-					}
-				}, this);
-			};
-			
-			this.addHoverTab = function(el)
-			{
-				el.on('mouseover', function() { this.start(el); }, this);
-				el.on('mouseout', function() { this.cancel(el); }, this);
-				this.navIds.push(el.get('id'));
-			};
-			
-			this.start = function(el)
-			{
-				if (!this.timeout) {
-					this.timeout   = Y.later(500, this, this.show);
-					this.currentId = el.get('id');
-				}
-			};
-			
-			this.show = function()
-			{
-				for (var i = 0, l = this.navIds.length; i < l; i++) {
-					Y.get('#sub' + this.navIds[i]).setStyle('display', 'none');
-					Y.get('#' + this.navIds[i]).removeClass('current');
-				}
-				
-				Y.get('#sub' + this.currentId).setStyle('display', '');
-				Y.get('#' + this.currentId).addClass('current');
-			};
-			
-			this.cancel = function()
-			{
-				if (this.timeout) {
-					this.timeout.cancel()
-					this.timeout = false;
-				}
-			};
-		};
-		
-		Y.on('domready', function() {
-			rpg.navmanager = new rpg.NavManager();
-			rpg.navmanager.init();
-		});
-	});
-	
-	</script>
 </head>
 <body>
 
 <div id="top">
 	<div class="toplinks">
-		<a href="#">Logged in as <strong>Indigo</strong></a>
-		<a href="<?php echo RPG::url('login/logout/' . md5(rand())); ?>">Logout</a>
+	<?php if (RPG::user()->isLoggedIn()) { ?>
+		<a href="#">Logged in as <strong><?php $this->escape(RPG::user()->name) ?></strong></a>
+		<a href="<?php echo RPG::url('auth/logout/' . md5(rand())); ?>">Logout</a>
+	<?php } else { ?>
+		<form action="<?php echo RPG::url('auth/login') ?>" method="post">
+		<input type="text" name="username" id="login_username" size="12" value="Username" title="Username" />
+		<input type="password" name="password" id="login_password" size="12" value="Password" title="Password" />
+		<!--<label for="login_remember">Remember Me </label>--><input type="checkbox" name="remember" id="login_remember" value="1" title="Remember me" />
+		<input type="submit" value="Log in" />
+		</form>
+		<!-- <a href="<?php echo RPG::url('auth/register') ?>">Register</a> -->
+	<?php } ?>
 	</div>
 	<h1>Anfiniti RPG</h1>
 </div>
@@ -108,9 +56,9 @@
 
 <div id="main">
 
-	<div id="navbits">
-	
-	</div>
+	<?php if (isset($title)) { ?>
+	<h2 id="pagetitle">&raquo; <?php $this->escape($title) ?></h2>
+	<?php } ?>
 	
 	<div id="content">
 	<?php echo $content ?>

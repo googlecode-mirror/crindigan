@@ -57,6 +57,9 @@ class RPG_Input
 		{
 			throw new RPG_Exception('Invalid request method - may only accept GET and POST.');
 		}
+		
+		// if i decide to use mb_* functions for everything later
+		//mb_internal_encoding('UTF-8');
 	}
 	
 	/**
@@ -94,6 +97,98 @@ class RPG_Input
 	}
 	
 	/**
+	 * Filters a variable.
+	 *
+	 * @see    RPG_Input_Filter::filter()
+	 * @param  mixed $var
+	 * @param  string $filter
+	 * @param  array $options
+	 * @return mixed Filtered variable.
+	 */
+	public function filter($var, $filter = '', array $options = array())
+	{
+		return empty($filter) ? $var : RPG_Input_Filter::filter($var, $filter, $options);
+	}
+	
+	/**
+	 * Filters a variable from an array.
+	 *
+	 * @param  array $var Array of data
+	 * @param  mixed $key Key from the $var array, or an array of multiple
+	 *                    keys pointing to filters and options.
+	 * @param  string $filter
+	 * @param  array $options
+	 * @return mixed Filtered variable.
+	 */
+	public function filterFromArray($var, $key, $filter = '', array $options = array())
+	{
+		if (is_array($key))
+		{
+			$return = array();
+			foreach ($key AS $k => $value)
+			{
+				if (is_array($value))
+				{
+					$filter  = array_shift($value);
+					$options = $value;
+				}
+				else
+				{
+					$filter  = $value;
+					$options = array();
+				}
+				$return[$k] = $this->filterFromArray($var, $k, $filter, $options);
+			}
+			return $return;
+		}
+		
+		if (empty($filter))
+		{
+			return isset($var[$key]) ? $var[$key] : null;
+		}
+		
+		return $this->filter(isset($var[$key]) ? $var[$key] : null, $filter, $options);
+	}
+	
+	/**
+	 * 
+	 * $input->get('charId', 'int', array('min' => 1));
+	 * $input->get('charId', 'int');
+	 
+	 * $input->get(array('charId' => array('int', 'min' => 1)));
+	 * $input->get(array('charId' => 'int'));
+	 */
+	public function get($key, $filter = '', array $options = array())
+	{
+		return $this->filterFromArray($_GET, $key, $filter, $options);
+	}
+	
+	public function post($key, $filter = '', array $options = array())
+	{
+		return $this->filterFromArray($_POST, $key, $filter, $options);
+	}
+	
+	public function cookie($key, $filter = '', array $options = array())
+	{
+		$cookiePrefix = RPG::config('cookiePrefix');
+		
+		if (is_array($key))
+		{
+			$pkey = array();
+			foreach ($key AS $k => $v)
+			{
+				$pkey[$cookiePrefix . $k] = $v;
+			}
+		}
+		else
+		{
+			$pkey = $cookiePrefix . $key;
+		}
+		
+		return $this->filterFromArray($_COOKIE, $pkey, $filter, $options);
+	}
+	
+	/**
 	 * Sets a cookie, applying the cookie prefix given in the configuration.
 	 *
 	 * @param  string $name
@@ -115,18 +210,6 @@ class RPG_Input
 		
 		setcookie(RPG::config('cookiePrefix') . $name, $value, RPG_NOW + $expire,
 			RPG::config('baseUrl') . '/', '', false, $httpOnly);
-	}
-	
-	/**
-	 * Retrieves a cookie, applying the cookie prefix given in the config file.
-	 *
-	 * @param  string $name
-	 * @return string|null
-	 */
-	public function getCookie($name)
-	{
-		$key = RPG::config('cookiePrefix') . $name;
-		return isset($_COOKIE[$key]) ? $_COOKIE[$key] : null;
 	}
 	
 	/**

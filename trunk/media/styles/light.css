@@ -4,12 +4,14 @@
 html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var,optgroup{font-style:inherit;font-weight:inherit;}del,ins{text-decoration:none;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:baseline;}sub{vertical-align:baseline;}legend{color:#000;}input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit;}input,button,textarea,select{*font-size:100%;}body{font:13px/1.231 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}select,input,button,textarea,button{font:99% arial,helvetica,clean,sans-serif;}table{font-size:inherit;font:100%;}pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}body{margin:10px;}h1{font-size:138.5%;}h2{font-size:123.1%;}h3{font-size:108%;}h1,h2,h3{margin:1em 0;}h1,h2,h3,h4,h5,h6,strong,dt{font-weight:bold;}optgroup{font-weight:normal;}abbr,acronym{border-bottom:1px dotted #000;cursor:help;}em{font-style:italic;}del{text-decoration:line-through;}blockquote,ul,ol,dl{margin:1em;}ol,ul,dl{margin-left:2em;}ol li{list-style:decimal outside;}ul li{list-style:disc outside;}dl dd{margin-left:1em;}th,td{border:1px solid #000;padding:.5em;}th{font-weight:bold;text-align:center;}caption{margin-bottom:.5em;text-align:center;}sup{vertical-align:super;}sub{vertical-align:sub;}p,fieldset,table,pre{margin-bottom:1em;}button,input[type="checkbox"],input[type="radio"],input[type="reset"],input[type="submit"]{padding:1px;}
 
 /*
- * Body definition and header.
+ * Body definition and header
  */
 
 body {
 	margin: 0;
 	padding: 0;
+	font-family: verdana, tahoma, arial, helvetica, sans-serif;
+	color: #000000;
 }
 
 div#top {
@@ -37,35 +39,53 @@ div#top .toplinks a:hover {
 	text-decoration: underline;
 }
 
+div#top input {
+	background-color: #E1E7FF;
+	color: #000000;
+	border: none;
+	padding: 2px;
+	font-size: 85%;
+}
+
+div#top input:hover, div#top input:focus {
+	background-color: #FFFFFF;
+}
+
+div#top input[type="checkbox"] {
+	background-color: inherit;
+	color: inherit;
+	padding: none;
+}
+
 /*
- * Navigation.
+ * Navigation
  */
 
 div#nav {
-	background-color: #D6D6FF;
-	padding: .5em;
+	background-color: #D0D6FF;
+	padding: 7px;
 	text-align: center;
 }
 
 div#nav a {
-	padding: .4em .7em .5em;
+	padding: 6px 9px 6px;
 	color: #000000;
 	text-decoration: none;
 	font-weight: bold;
 }
 
 div#nav a:hover, div#nav a.current {
-	background-color: #E4E4FF;
+	background-color: #E1E7FF;
 }
 
 div.subnav {
-	background-color: #E4E4FF;
-	padding: .5em;
+	background-color: #E1E7FF;
+	padding: 7px;
 	text-align: center;
 }
 
 div.subnav a {
-	padding: .4em .5em .5em;
+	padding: 4px 8px 6px;
 	color: #000000;
 	text-decoration: none;
 }
@@ -74,6 +94,17 @@ div.subnav a:hover, div.subnav a.current {
 	background-color: #FFFFFF;
 }
 
+/*
+ * Content
+ */
 div#main {
 	margin: 1em;
+}
+
+h2#pagetitle {
+	letter-spacing: .1em;
+	color: #405066;
+	border-bottom: 1px dotted #B0C0E0;
+	padding-bottom: 3px;
+	margin-top: 0;
 }

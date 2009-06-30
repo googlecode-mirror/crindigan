@@ -41,8 +41,8 @@ class HelloController extends RPG_Controller
 	{
 		parent::__construct();
 		RPG::view()->setLayout('layouts/frontend.php')
-				   ->setNavCurrent('battle', 'battle/my')
-				   ->setTitle('Hello World');
+				   ->setNavCurrent('character', 'squad')
+				   ->setTitle('Edit Squad - Indigo Battalion');
 	}
 	
 	/**

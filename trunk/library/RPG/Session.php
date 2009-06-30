@@ -178,9 +178,10 @@ class RPG_Session
 	 * Retrieves the flash data for a given key, and removes it.
 	 *
 	 * @param  string $key
+	 * @param  bool $keep If true, will not remove the flash data.
 	 * @return mixed  The flash data, or null if nonexistant
 	 */
-	public function getFlash($key)
+	public function getFlash($key, $keep = false)
 	{
 		if (!$this->hasFlash($key))
 		{
@@ -188,7 +189,11 @@ class RPG_Session
 		}
 		
 		$val = $_SESSION['_flash'][$key];
-		unset($_SESSION['_flash'][$key]);
+		if (!$keep)
+		{
+			unset($_SESSION['_flash'][$key]);
+		}
+		
 		return $val;
 	}
 	

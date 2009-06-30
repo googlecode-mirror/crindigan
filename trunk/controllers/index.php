@@ -24,5 +24,9 @@
 
 class IndexController extends RPG_Controller
 {
-	
+	public function doIndex()
+	{
+		// just go to HomeController
+		RPG::view()->redirect('home');
+	}
 }

@@ -46,19 +46,19 @@ class RPG_User
 		if ($this->isLoggedIn())
 		{
 			// setup registered user
-			$this->_setupMember();
+			$this->setupMember();
 		}
 		else if (!$this->_attemptAutoLogin())
 		{
 			// if auto-login failed, we're a guest
-			$this->_setupGuest();
+			$this->setupGuest();
 		}
 	}
 	
 	/**
 	 * Sets up the instance for a registered member.
 	 */
-	protected function _setupMember()
+	public function setupMember()
 	{
 		$userId = RPG::session()->userId;
 		$this->data = RPG::database()->queryFirst(
@@ -68,7 +68,7 @@ class RPG_User
 	/**
 	 * Sets up the instance for a guest.
 	 */
-	protected function _setupGuest()
+	public function setupGuest()
 	{
 		$this->data = array(
 			'user_id' => 0,
@@ -86,10 +86,10 @@ class RPG_User
 	 */
 	protected function _attemptAutoLogin()
 	{
-		$userId   = (int) RPG::input()->getCookie('userid');
-		$loginKey = RPG::input()->getCookie('autologin');
+		$userId   = RPG::input()->cookie('userid', 'uint');
+		$loginKey = RPG::input()->cookie('autologin', 'string');
 		
-		if (!$userId AND !$loginKey)
+		if (!$userId OR !$loginKey)
 		{
 			return false;
 		}
@@ -115,7 +115,7 @@ class RPG_User
 		// we succeeded. log in, set up the member, and refresh auto login details.
 		RPG::session()->loggedIn = true;
 		RPG::session()->userId   = $userId;
-		$this->_setupMember();
+		$this->setupMember();
 		$this->refreshAutoLogin();
 		
 		return true;		
@@ -127,7 +127,7 @@ class RPG_User
 	 */
 	public function refreshAutoLogin()
 	{
-		$loginKey = sha1($this->data['user_password'] . $this->generateSalt(32));
+		$loginKey = sha1($this->generateSalt(20));
 		
 		RPG::database()->update('user', array(
 			'user_autologin' => $loginKey,
@@ -137,6 +137,21 @@ class RPG_User
 		// set httponly cookie for 30 days
 		RPG::input()->setCookie('autologin', sha1($loginKey . RPG::config('cookieSalt')),
 			86400 * 30, true);
+		RPG::input()->setCookie('userid', $this->data['user_id'], 86400 * 30, true);
+	}
+	
+	/**
+	 * Clears the user's autologin information.
+	 */
+	public function clearAutoLogin()
+	{
+		RPG::database()->update('user', array(
+			'user_autologin' => '',
+			'user_autologin_time' => 0,
+		), array('user_id = :0', $this->data['user_id']));
+		
+		RPG::input()->setCookie('autologin', null);
+		RPG::input()->setCookie('userid', null);
 	}
 	
 	/**
