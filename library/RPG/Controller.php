@@ -34,8 +34,9 @@ class RPG_Controller
 	 */
 	public function __construct()
 	{
-		// add YUI 3
-		RPG::view()->addScript('http://yui.yahooapis.com/3.0.0b1/build/yui/yui-min.js', true);
+		// add YUI 3 and common JS
+		RPG::view()->addScript('http://yui.yahooapis.com/3.0.0b1/build/yui/yui-min.js', true)
+		           ->addScript('media/js/common.js');
 		
 		$this->_setupPublicMenu();
 	}
@@ -45,6 +46,8 @@ class RPG_Controller
 	 */
 	protected function _setupPublicMenu()
 	{
+		RPG::view()->pushNavbit('Anfiniti RPG', 'home');
+		
 		RPG::view()
 			->setNavEntry('home', 'home', 'Home', true)
 				->setSubNavEntry('home', array(
@@ -53,8 +56,8 @@ class RPG_Controller
 				))
 			->setNavEntry('character', 'character', 'Characters')
 				->setSubNavEntry('character', array(
-					'party' => 'Manage Parties',
-					'party/exchange' => 'Exchange Members',
+					'squad' => 'Manage Squads',
+					'squad/exchange' => 'Exchange Members',
 					'recruit' => 'Recruit Soldiers',
 					'character/search' => 'Search Characters',
 				))

@@ -139,7 +139,7 @@ class RPG_Database
 	 * @param  integer $mode
 	 * @return array
 	 */
-	public function queryFirst($sql, $bind = array(), $mode = self::ASSOC)
+	public function queryFirst($sql, $bind = array(), $mode = RPG_Database_Result::ASSOC)
 	{
 		return $this->query($sql, $bind)->fetch($mode);
 	}
@@ -164,7 +164,7 @@ class RPG_Database
 	 * @param  integer $mode
 	 * @return array
 	 */
-	public function queryAll($sql, $bind = array(), $mode = self::ASSOC)
+	public function queryAll($sql, $bind = array(), $mode = RPG_Database_Result::ASSOC)
 	{
 		return $this->query($sql, $bind)->fetchAll($mode);
 	}

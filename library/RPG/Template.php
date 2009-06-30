@@ -232,8 +232,13 @@ class RPG_Template
 		return $s;
 	}
 	
-	public function escape($str)
+	public function escape($str, $return = false)
 	{
-		echo htmlentities($str, ENT_QUOTES, 'UTF-8', false);
+		$str = htmlentities($str, ENT_QUOTES, 'UTF-8', false);
+		if ($return)
+		{
+			return $str;
+		}
+		echo $str;
 	}
 }

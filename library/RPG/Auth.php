@@ -22,3 +22,68 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GPL
  */
 
+/**
+ * Abstract authentication adapter.
+ *
+ * @package AnfinitiRPG
+ */
+abstract class RPG_Auth
+{
+	protected $_username = '';
+	
+	protected $_password = '';
+	
+	protected $_userId = 0;
+	
+	/**
+	 * Constructor. Protected so that only subclasses may be instantiated.
+	 *
+	 * @param  string $username
+	 * @param  string $password
+	 */
+	protected function __construct($username, $password)
+	{
+		$this->_username = $username;
+		$this->_password = $password;
+	}
+	
+	/**
+	 * Returns an instance of an RPG_Auth subclass, given the username,
+	 * password, and an adapter. If the adapter is not given, it will
+	 * use the authAdapter setting as defined in config.php.
+	 *
+	 * @param  string $username
+	 * @param  string $password
+	 * @param  string $adapter
+	 * @return RPG_Auth subclass
+	 */
+	public static function factory($username, $password, $adapter = null)
+	{
+		if ($adapter === null)
+		{
+			$adapter = RPG::config('authAdapter');
+		}
+		
+		$className = 'RPG_Auth_' . ucfirst($adapter);
+		
+		return new $className($username, $password);
+	}
+	
+	/**
+	 * Returns the user ID as set after authentication.
+	 *
+	 * @return integer
+	 */
+	public function getUserId()
+	{
+		return $this->_userId;
+	}
+	
+	/**
+	 * Authenticates the given username and password, and sets the _userId
+	 * property to the ID of the matched user (if any).
+	 *
+	 * @return bool Whether authentication was a success.
+	 */
+	abstract public function authenticate();
+}
