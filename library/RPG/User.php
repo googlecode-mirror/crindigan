@@ -37,11 +37,20 @@ class RPG_User
 	public $data = array();
 	
 	/**
+	 * User model instance, since it will be used frequently.
+	 *
+	 * @var UserModel
+	 */
+	protected $_model = null;
+	
+	/**
 	 * Initializes the user, setting them up as a member or guest, and
 	 * checking for automatic logins.
 	 */
 	public function __construct()
 	{
+		$this->_model = RPG::model('user');
+		
 		// try to see if we're logged in according to the session
 		if ($this->isLoggedIn())
 		{
@@ -61,8 +70,10 @@ class RPG_User
 	public function setupMember()
 	{
 		$userId = RPG::session()->userId;
-		$this->data = RPG::database()->queryFirst(
-			'SELECT * FROM {user} WHERE user_id = :0', $userId);
+		$this->data = $this->_model->getUserInfo($userId);
+		
+		$this->data['user_logouthash'] = sha1($this->id . sha1($this->salt) . 
+			sha1($this->name) . sha1(RPG::config('cookieSalt')));
 	}
 	
 	/**
@@ -95,12 +106,7 @@ class RPG_User
 		}
 		
 		// we check the auto-login to make sure it isn't older than 30 days
-		$user = RPG::database()->queryFirst(
-			"SELECT user_autologin, user_autologin_time
-			 FROM {user}
-			 WHERE user_id = :0",
-			$userId
-		);
+		$user = $this->_model->getAutoLoginInfo($userId);
 		
 		if ($user['user_autologin_time'] < RPG_NOW - (86400 * 30))
 		{
@@ -127,12 +133,8 @@ class RPG_User
 	 */
 	public function refreshAutoLogin()
 	{
-		$loginKey = sha1($this->generateSalt(20));
-		
-		RPG::database()->update('user', array(
-			'user_autologin' => $loginKey,
-			'user_autologin_time' => RPG_NOW,
-		), array('user_id = :0', $this->data['user_id']));
+		$loginKey = sha1($this->_model->generateSalt(20));
+		$this->_model->updateAutoLogin($this->data['user_id'], $loginKey, RPG_NOW);
 		
 		// set httponly cookie for 30 days
 		RPG::input()->setCookie('autologin', sha1($loginKey . RPG::config('cookieSalt')),
@@ -145,35 +147,11 @@ class RPG_User
 	 */
 	public function clearAutoLogin()
 	{
-		RPG::database()->update('user', array(
-			'user_autologin' => '',
-			'user_autologin_time' => 0,
-		), array('user_id = :0', $this->data['user_id']));
+		// no params clears the autologin
+		$this->_model->updateAutoLogin($this->data['user_id']);
 		
 		RPG::input()->setCookie('autologin', null);
 		RPG::input()->setCookie('userid', null);
-	}
-	
-	/**
-	 * Generates a random salt.
-	 *
-	 * @param  integer $length
-	 * @return string
-	 */
-	public function generateSalt($length = 5)
-	{
-		$salt = '';
-		for ($i = 0; $i < $length; $i++)
-		{
-			$rand = mt_rand(1, 93);
-			
-			// if rand is 1-59, add 32 (33-91). else, add 33 (93-126).
-			// skips backslash while still creating even distribution.
-			$rand += ($rand < 60) ? 32 : 33;
-			$salt .= chr($rand);
-		}
-		
-		return $salt;
 	}
 	
 	/**

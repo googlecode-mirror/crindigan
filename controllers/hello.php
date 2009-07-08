@@ -37,11 +37,12 @@
  */
 class HelloController extends RPG_Controller
 {
+	protected $_layout = 'layouts/frontend.php';
+	
 	public function __construct()
 	{
 		parent::__construct();
-		RPG::view()->setLayout('layouts/frontend.php')
-				   ->setNavCurrent('character', 'squad')
+		RPG::view()->setNavCurrent('character', 'squad')
 				   ->setTitle('Edit Squad - Indigo Battalion');
 	}
 	
@@ -50,9 +51,7 @@ class HelloController extends RPG_Controller
 	 */
 	public function doIndex()
 	{
-		RPG::view()->setContent(
-			RPG::template('hello_index.php')->set('somevar', 'hoohah')
-		);
+		RPG::view()->setContent('blah, index action');
 	}
 	
 	/**
@@ -60,7 +59,7 @@ class HelloController extends RPG_Controller
 	 */
 	public function doWorld()
 	{
-		echo 'Hello, world!';
+		echo 'path: ', RPG::input()->getPath(), '?', $_SERVER['QUERY_STRING'];
 	}
 	
 	/**

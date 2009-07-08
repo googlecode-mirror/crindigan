@@ -30,12 +30,20 @@
 class RPG_Controller
 {
 	/**
+	 * Default layout for the controller.
+	 *
+	 * @var string
+	 */
+	protected $_layout = '';
+	
+	/**
 	 * Constructor.
 	 */
 	public function __construct()
 	{
 		// add YUI 3 and common JS
-		RPG::view()->addScript('http://yui.yahooapis.com/3.0.0b1/build/yui/yui-min.js', true)
+		RPG::view()->setLayout($this->_layout)
+		           ->addScript('http://yui.yahooapis.com/3.0.0b1/build/yui/yui-min.js', true)
 		           ->addScript('media/js/common.js');
 		
 		$this->_setupPublicMenu();
@@ -46,8 +54,6 @@ class RPG_Controller
 	 */
 	protected function _setupPublicMenu()
 	{
-		RPG::view()->pushNavbit('Anfiniti RPG', 'home');
-		
 		RPG::view()
 			->setNavEntry('home', 'home', 'Home', true)
 				->setSubNavEntry('home', array(
@@ -65,7 +71,7 @@ class RPG_Controller
 				->setSubNavEntry('inventory', array(
 					'inventory' => 'View Inventory',
 					'inventory/exchange' => 'Exchange Items',
-					'item-creation' => 'Item Creation',
+					'create' => 'Item Creation',
 				))
 			->setNavEntry('battle', 'battle', 'Battles')
 				->setSubNavEntry('battle', array(
@@ -86,6 +92,12 @@ class RPG_Controller
 					'library/skills'  => 'Skills',
 					'library/items'   => 'Items',
 					'library/deities' => 'Deities',
+				))
+			->setNavEntry('user', 'user', 'User')
+				->setSubNavEntry('user', array(
+					'user'       => 'My Profile',
+					'user/edit'  => 'Edit Settings',
+					'user/money' => 'Exchange Money',
 				));
 	}
 	

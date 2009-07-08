@@ -58,7 +58,7 @@ YUI().use('node', function(Y)
 		 */
 		this.init = function()
 		{
-			Y.get('#nav').queryAll('a').each(function(el) {
+			Y.all('#nav a').each(function(el) {
 				if (el.get('id').substr(0, 4) === 'nav_') {
 					this.addHoverTab(el);
 				}
@@ -110,7 +110,7 @@ YUI().use('node', function(Y)
 		this.cancel = function()
 		{
 			if (this.timeout) {
-				this.timeout.cancel()
+				this.timeout.cancel();
 				this.timeout = false;
 			}
 		};

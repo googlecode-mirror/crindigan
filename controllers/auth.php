@@ -47,7 +47,8 @@ class AuthController extends RPG_Controller
 		
 		$post = RPG::input()->post(array('username' => 'string',
 										 'password' => 'string',
-										 'remember' => 'uint'));
+										 'remember' => 'uint',
+										 'returnto' => 'string'));
 		// initialize auth class
 		$auth = RPG_Auth::factory($post['username'], $post['password']);
 		
@@ -57,13 +58,25 @@ class AuthController extends RPG_Controller
 			RPG::session()->userId   = $auth->getUserId();
 			RPG::user()->setupMember();
 			
-			if (true or $post['remember'] === 1)
+			if ($post['remember'] === 1)
 			{
 				RPG::user()->refreshAutoLogin();
 			}
 			
-			// TODO - redirect to previous page user visited
-			RPG::view()->redirect('home');
+			// redirect to previous page user visited
+			$returnTo = $post['returnto'];
+			$query = array();
+			if (strpos($returnTo, '?') !== false)
+			{
+				list($path, $queryString) = explode('?', $returnTo);
+				parse_str($queryString, $query);
+			}
+			else
+			{
+				$path = $returnTo;
+			}
+			
+			RPG::view()->redirect($path, $query);
 		}
 		else
 		{
@@ -75,15 +88,32 @@ class AuthController extends RPG_Controller
 	/**
 	 * Logs the user out of the system.
 	 */
-	public function doLogout()
+	public function doLogout($hash = '')
 	{
 		// todo - have a logout hash
+		$user = RPG::user();
 		
-		RPG::user()->clearAutoLogin();
-		RPG::session()->loggedIn = false;
-		RPG::session()->userId   = 0;
-		RPG::user()->setupGuest();
+		if ($hash === sha1($user->id . sha1($user->salt) . sha1($user->name)
+						   . sha1(RPG::config('cookieSalt'))))
+		{
+			$user->clearAutoLogin();
+			RPG::session()->loggedIn = false;
+			RPG::session()->userId   = 0;
+			$user->setupGuest();
+		}
 		
-		RPG::view()->redirect('home');
+		$returnTo = urldecode(RPG::input()->get('returnto', 'string'));
+		$query = array();
+		if (strpos($returnTo, '?') !== false)
+		{
+			list($path, $queryString) = explode('?', $returnTo);
+			parse_str($queryString, $query);
+		}
+		else
+		{
+			$path = $returnTo;
+		}
+		
+		RPG::view()->redirect($path, $query);
 	}
 }

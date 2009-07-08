@@ -42,7 +42,7 @@ class RPG_Router
 	 *
 	 * @var string
 	 */
-	protected $_controllerDir = '';
+	protected $_controllerPath = '';
 	
 	/**
 	 * Initializes the router. Protected to enforce singleton pattern.
@@ -54,8 +54,10 @@ class RPG_Router
 	
 	/**
 	 * Initializes a singleton instance of this class.
+	 * 
+	 * @return RPG_Router
 	 */
-	public static function getInstance($controllerDir = '')
+	public static function getInstance()
 	{
 		if (self::$_instance === null)
 		{
@@ -66,19 +68,19 @@ class RPG_Router
 	}
 	
 	/**
-	 * Sets the controller directory.
+	 * Sets the controller path.
 	 *
-	 * @param  string $controllerDir  Path to the base controller directory
+	 * @param  string $controllerPath  Path to the base controller directory
 	 */
-	public function setControllerDir($controllerDir = '')
+	public function setControllerPath($controllerPath = '')
 	{
-		if (is_dir($controllerDir))
+		if (is_dir($controllerPath))
 		{
-			$this->_controllerDir = $controllerDir;
+			$this->_controllerPath = $controllerPath;
 		}
 		else
 		{
-			throw new RPG_Exception('Specified controller directory does not exist.');
+			throw new RPG_Exception('Specified controller path does not exist.');
 		}
 	}
 	
@@ -93,6 +95,7 @@ class RPG_Router
 		
 		$controller = $this->_getController($parts['controller']);
 		$action     = $this->_getActionName($parts['action']);
+		RPG::set('current_params', $parts['params']);
 		
 		if (!method_exists($controller, $action))
 		{
@@ -151,7 +154,7 @@ class RPG_Router
 	{
 		$urlPart  = preg_replace('#[^a-z0-9:]#', '', strtolower($urlPart));
 		$urlPart  = preg_replace('#:{2,}#', ':', $urlPart);
-		$fileName = $this->_controllerDir . '/' . str_replace(':', '/', $urlPart) . '.php';
+		$fileName = $this->_controllerPath . '/' . str_replace(':', '/', $urlPart) . '.php';
 		
 		// Build class name - admin:char => AdminCharController
 		$className  = implode('', array_map('ucfirst', explode(':', $urlPart)));
@@ -159,7 +162,7 @@ class RPG_Router
 		
 		if (!file_exists($fileName))
 		{
-			throw new RPG_Exception('Controller "' . $className . '" not found in "' . $this->_controllerDir . '".');
+			throw new RPG_Exception('Controller "' . $className . '" not found in "' . $this->_controllerPath . '".');
 		}
 		
 		RPG::set('current_controller', $urlPart);

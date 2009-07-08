@@ -234,11 +234,16 @@ class RPG_Template
 	
 	public function escape($str, $return = false)
 	{
-		$str = htmlentities($str, ENT_QUOTES, 'UTF-8', false);
+		$str = htmlspecialchars($str, ENT_QUOTES, 'UTF-8', false);
 		if ($return)
 		{
 			return $str;
 		}
 		echo $str;
+	}
+	
+	public function url($path, array $query = array())
+	{
+		return $this->escape(RPG::url($path, $query), true);
 	}
 }

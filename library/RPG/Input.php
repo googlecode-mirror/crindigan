@@ -215,47 +215,28 @@ class RPG_Input
 	/**
 	 * Returns the path info for the request.
 	 *
+	 * @param  bool $includeQuery If true, does not remove the query string
+	 * @param  bool $includeBase If true, does not remove the base path
 	 * @return string
 	 */
-	public function getPath()
+	public function getPath($includeQuery = false, $includeBase = false)
 	{
-		if (isset($this->_path))
-		{
-			return $this->_path;
-		}
-		
 		// First we'll need a request URI
-		
-		if (isset($_SERVER['HTTP_X_REWRITE_URL']))
+		$path = $_SERVER['REQUEST_URI'];
+		if (isset($_SERVER['HTTP_HOST']) AND strpos($path, $_SERVER['HTTP_HOST']) !== false)
 		{
-			$path = $_SERVER['HTTP_X_REWRITE_URL'];
-		}
-		else if (isset($_SERVER['REQUEST_URI']))
-		{
-			$path = $_SERVER['REQUEST_URI'];
-			if (isset($_SERVER['HTTP_HOST']) AND strpos($path, $_SERVER['HTTP_HOST']) !== false)
-			{
-				$path = preg_replace('#^[^:]*://[^/]*/#', '/', $path);
-			}
-		}
-		else if (isset($_SERVER['ORIG_PATH_INFO']))
-		{
-			$path = $_SERVER['ORIG_PATH_INFO'];
-		}
-		else
-		{
-			$path = '';
+			$path = preg_replace('#^[^:]*://[^/]*/#', '/', $path);
 		}
 		
 		// Remove the query string if it's present
-		if (($query = strpos($path, '?')) !== false)
+		if (!$includeQuery AND ($query = strpos($path, '?')) !== false)
 		{
 			$path = substr($path, 0, $query);
 		}
 		
 		// Remove the base URL
 		$baseUrl = RPG::config('baseUrl');
-		if (!empty($baseUrl))
+		if (!$includeBase AND !empty($baseUrl))
 		{
 			$baseUrl = rtrim($baseUrl, '/');
 			$path = substr($path, strlen($baseUrl));
