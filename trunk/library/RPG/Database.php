@@ -197,6 +197,18 @@ class RPG_Database
 	}
 	
 	/**
+	 * Returns an RPG_Database_Select instance with the "from" parameter
+	 * optionally set.
+	 *
+	 * @param  string $from Main table to select from.
+	 * @return RPG_Database_Select
+	 */
+	public function select($from = '')
+	{
+		return new RPG_Database_Select($from);
+	}
+	
+	/**
 	 * Inserts data into the given table.
 	 *
 	 * @param  string $table

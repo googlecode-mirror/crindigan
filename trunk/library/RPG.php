@@ -58,6 +58,13 @@ final class RPG
 	private static $_router = null;
 	
 	/**
+	 * Model class instances.
+	 *
+	 * @var array of RPG_Model subclasses
+	 */
+	private static $_models = array();
+	
+	/**
 	 * View/layout library instance.
 	 *
 	 * @var RPG_View
@@ -139,11 +146,30 @@ final class RPG
 	}
 	
 	/**
-	 * Loads a model class and instantiates it.
+	 * Loads a model class and instantiates it if necessary.
+	 * 
+	 * @param  string $name
+	 * @return RPG_Model subclass
 	 */
 	public static function model($name)
 	{
+		if (!isset(self::$_models[$name]))
+		{
+			if (!file_exists(RPG_Model::getPath() . "/$name.php"))
+			{
+				throw new RPG_Exception("Model \"$name\" does not exist.");
+			}
+			
+			require RPG_Model::getPath() . "/$name.php";
+			
+			// foo/bar -> FooBarModel
+			$className  = str_replace(' ', '', ucwords(str_replace('/', ' ', $name)));
+			$className .= 'Model';
+			
+			self::$_models[$name] = new $className();
+		}
 		
+		return self::$_models[$name];
 	}
 	
 	/**
@@ -222,20 +248,20 @@ final class RPG
 	/**
 	 * Fetches an instance of the router library, initializing if necessary.
 	 *
-	 * @param  string $controllerDir Directory where controllers are located.
+	 * @param  string $controllerPath Path where controllers are located.
 	 * @return RPG_Router
 	 */
-	public static function router($controllerDir = '')
+	public static function router($controllerPath = '')
 	{
 		if (self::$_router === null)
 		{
-			if (empty($controllerDir))
+			if (empty($controllerPath))
 			{
-				throw new RPG_Exception('Controller directory cannot be empty on first call to RPG::router()');
+				throw new RPG_Exception('Controller path cannot be empty on first call to RPG::router()');
 			}
 			
 			self::$_router = RPG_Router::getInstance();
-			self::$_router->setControllerDir($controllerDir);
+			self::$_router->setControllerPath($controllerPath);
 		}
 		return self::$_router;
 	}
@@ -290,7 +316,7 @@ final class RPG
 	 * @param  array  $query Parameters to be included in the query string.
 	 * @return string  The constructed URL.
 	 */
-	public static function url($path, array $query = array())
+	public static function url($path, $query = array())
 	{
 		$parts = self::router()->getUrlParts($path);
 		extract($parts);
@@ -302,6 +328,16 @@ final class RPG
 		if ($action === '*')
 		{
 			$action = self::get('current_action', 'index');
+		}
+		
+		if (isset($params[0]) AND $params[0] === '*')
+		{
+			$params = self::get('current_params', array());
+		}
+		
+		if (is_string($query) AND $query === '*')
+		{
+			$query = $_GET;
 		}
 		
 		$url = self::config('baseUrl') . "/$controller";

@@ -25,6 +25,7 @@
 // Bootstrap the system
 define('RPG_ROOT', dirname(__FILE__));
 define('RPG_NOW', time());
+define('RPG_VERSION', '0.0.1');
 
 // Set up the autoloader
 function __autoload($className)
@@ -41,28 +42,45 @@ function __autoload($className)
 // Set up the error handler
 set_error_handler(array('RPG', 'handlePhpError'));
 
+// default config items
+$defaultConfig = array(
+	'modelPath' => RPG_ROOT . '/models',
+	'viewPath'  => RPG_ROOT . '/views',
+	'controllerPath' => RPG_ROOT . '/controllers',
+);
+
 // Initialize the configuration array
 $config = require RPG_ROOT . '/config.php';
+
+$config = array_merge($defaultConfig, $config);
 
 try
 {
 	// Initialize the system
 	RPG::setConfig($config);
+	RPG_Template::setPath($config['viewPath']);
+	RPG_Model::setPath($config['modelPath']);
+	
 	RPG::session();
 	RPG::user();
-	RPG_Template::setPath(RPG_ROOT . '/views');
+	
+	// add this now, so controllers can include CSS that overrides defaults
+	RPG::view()->addStyleSheet('media/styles/light.css');
 	
 	// Process the request
-	RPG::router(RPG_ROOT . '/controllers')->processRequest();
+	RPG::router($config['controllerPath'])->processRequest();
 	
 	// Render the output - TODO: handle styles differently later
-	RPG::view()->addStyleSheet('media/styles/light.css')->render();
+	RPG::view()->render();
 }
 catch (RPG_Exception $ex)
 {
 	echo '<html>
 <head>
 	<title>Application Error</title>
+	<style type="text/css">
+	body { font-family: sans-serif; }
+	</style>
 </head>
 <body>
 	<h1>Application Error</h1>', "\n";

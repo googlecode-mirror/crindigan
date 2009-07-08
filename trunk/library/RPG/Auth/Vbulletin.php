@@ -82,10 +82,19 @@ class RPG_Auth_Vbulletin extends RPG_Auth
 		}
 		else
 		{
+			/* TODO: this should replace the raw insert()
+			
+			$obj = RPG::model('user')->getObject();
+			$obj->user_name = htmlspecialchars_decode($user['username'], ENT_COMPAT);
+			$obj->user_email = $user['email'];
+			$obj->user_external_id = $user['userid'];
+			RPG::model('user')->insert($obj);
+			*/
+			
 			$userId = $db->insert('user', array(
 				'user_name'     => htmlspecialchars_decode($user['username'], ENT_COMPAT),
 				'user_password' => '',
-				'user_salt'     => RPG::user()->generateSalt(5),
+				'user_salt'     => RPG::model('user')->generateSalt(5),
 				'user_email'    => $user['email'],
 				// autologin will be handled in auth controller
 				'user_autologin'      => '',

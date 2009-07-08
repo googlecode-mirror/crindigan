@@ -22,6 +22,11 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GPL
  */
 
+/**
+ * Contains a set of filters for handling user input.
+ *
+ * @package AnfinitiRPG
+ */
 class RPG_Input_Filter
 {
 	/**
@@ -160,6 +165,7 @@ class RPG_Input_Filter
 	 * @param  array $options allowNull - True to allow null bytes
 	 *                        maxLength - Will trim string to this length
 	 *                        noHtml    - Will run htmlentities() on string
+	 *                        noTrim    - Will not trim() the string
 	 *                        onlyChars - Only allow the given chars (regex charclass)
 	 * @return string
 	 */
@@ -179,7 +185,12 @@ class RPG_Input_Filter
 		
 		if (isset($options['noHtml']) AND $options['noHtml'])
 		{
-			$var = htmlentities($var, ENT_QUOTES, 'UTF-8', false);
+			$var = htmlspecialchars($var, ENT_QUOTES, 'UTF-8', false);
+		}
+		
+		if (!isset($options['noTrim']) OR !$options['noTrim'])
+		{
+			$var = trim($var);
 		}
 		
 		if (isset($options['onlyChars']))

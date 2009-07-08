@@ -32,10 +32,18 @@ class RPG_Database_Result
 	/**#@+
 	 * MySQLi fetch modes.
 	 */
-	const ASSOC = MYSQLI_ASSOC;
-	const NUM   = MYSQLI_NUM;
-	const BOTH  = MYSQLI_BOTH;
+	const ASSOC  = MYSQLI_ASSOC;
+	const NUM    = MYSQLI_NUM;
+	const BOTH   = MYSQLI_BOTH;
+	const OBJECT = 9999;
 	/**#@-*/
+	
+	/**
+	 * Array of fetch modes.
+	 *
+	 * @var array
+	 */
+	protected static $_fetchModes = array('ASSOC', 'NUM', 'BOTH', 'OBJECT');
 	
 	/**
 	 * Base MySQLi_Result instance.
@@ -64,12 +72,25 @@ class RPG_Database_Result
 	/**
 	 * Fetches the next row from the result.
 	 *
-	 * @param  integer $mode One of RPG_Database_Result::(ASSOC|NUM|BOTH).
+	 * @param  integer $mode One of RPG_Database_Result::(ASSOC|NUM|BOTH|OBJECT).
 	 *                       Defaults to ASSOC.
-	 * @return array
+	 * @return array|stdClass
 	 */
 	public function fetch($mode = self::ASSOC)
 	{
+		if (is_string($mode))
+		{
+			$mode = strtoupper($mode);
+			if (in_array($mode, self::$_fetchModes))
+			{
+				$mode = constant('self::' . $mode);
+			}
+		}
+		
+		if ($mode === self::OBJECT)
+		{
+			return $this->_result->fetch_object();
+		}
 		return $this->_result->fetch_array($mode);
 	}
 	
