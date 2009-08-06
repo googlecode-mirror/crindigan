@@ -77,6 +77,20 @@
 		</div>
 		Crindigan Version <?php echo RPG_VERSION ?>, Copyright &copy; 2009 Steven Harris
 	</div>
+	
+	<?php if (RPG::config('debug') AND !empty(RPG::$debugMessages)) { ?>
+	<br />
+	<div class="block">
+		<div class="block-header">Debugging Output</div>
+		<div class="block-body">
+			<ul>
+			<?php foreach (RPG::$debugMessages AS $__debug_msg) {
+				echo '<li>', nl2br($__debug_msg), "</li>\n";
+			} ?>
+			</ul>
+		</div>
+	</div>
+	<?php } ?>
 
 </div>
 

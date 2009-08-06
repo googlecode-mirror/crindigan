@@ -174,6 +174,28 @@ class RPG_Template
 	}
 	
 	/**
+	 * Checks if a template variable is set given its key.
+	 * 
+	 * @param  string $key
+	 * @return bool
+	 */
+	public function has($key)
+	{
+		return isset($this->_vars[$key]);
+	}
+	
+	/**
+	 * Checks if a template variable is set through property access.
+	 * 
+	 * @param  string $key
+	 * @return bool
+	 */
+	public function __isset($key)
+	{
+		return $this->has($key);
+	}
+	
+	/**
 	 * Clears one or all template variables.
 	 * 
 	 * @param  string $key Key of single variable to clear. Can pass multiple

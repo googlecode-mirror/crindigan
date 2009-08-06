@@ -97,6 +97,13 @@ class RPG_Database_Select
 	protected $_offset = 0;
 	
 	/**
+	 * Array of parameters to bind.
+	 *
+	 * @var array
+	 */
+	protected $_bind = array();
+	
+	/**
 	 * Creates a new instance, optionally setting the FROM portion.
 	 *
 	 * @param  string $from
@@ -307,9 +314,17 @@ class RPG_Database_Select
 	 * @param  mixed $value
 	 * @return RPG_Database_Select
 	 */
-	public function setBind($key, $value)
+	public function setBind($key, $value = null)
 	{
-		$this->_bind[$key] = $value;
+		if (is_array($key) AND $value === null)
+		{
+			$this->_bind = array_merge($this->_bind, $key);
+		}
+		else
+		{
+			$this->_bind[$key] = $value;
+		}
+		
 		return $this;
 	}
 	

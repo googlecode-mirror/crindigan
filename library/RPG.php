@@ -94,6 +94,13 @@ final class RPG
 	private static $_databases = array();
 	
 	/**
+	 * Debugging messages.
+	 *
+	 * @var array
+	 */
+	public static $debugMessages = array();
+	
+	/**
 	 * Private constructor to enforce static class.
 	 */
 	private function __construct() {}
@@ -201,7 +208,8 @@ final class RPG
 	}
 	
 	/**
-	 * Fetches the instance of RPG_Session, instantiating it if necessary.
+	 * Fetches the instance of RPG_Session or RPG_Session_Hybrid,
+	 * instantiating it if necessary.
 	 *
 	 * @return RPG_Session
 	 */
@@ -209,7 +217,14 @@ final class RPG
 	{
 		if (self::$_session === null)
 		{
-			self::$_session = new RPG_Session();
+			if (self::config('sessionHybrid'))
+			{
+				self::$_session = new RPG_Session_Hybrid();
+			}
+			else
+			{
+				self::$_session = new RPG_Session();
+			}
 		}
 		
 		return self::$_session;
@@ -404,5 +419,26 @@ final class RPG
 	public static function handlePhpError($errNo, $errMsg, $errFile, $errLine)
 	{
 		throw new RPG_Exception($errMsg, $errNo, $errFile, $errLine);
+	}
+	
+	/**
+	 * Adds a debug entry to the page footer.
+	 *
+	 * @param  mixed $str If not a string, it will be converted into its
+	 *                    print_r() representation.
+	 */
+	public static function debug($str)
+	{
+		if (!self::config('debug'))
+		{
+			return;
+		}
+		
+		if (!is_string($str))
+		{
+			$str = print_r($str, true);
+		}
+		
+		self::$debugMessages[] = $str;
 	}
 }

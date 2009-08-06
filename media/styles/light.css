@@ -69,7 +69,7 @@ div#nav {
 }
 
 div#nav a {
-	padding: 6px 9px 6px;
+	padding: 6px 9px 7px;
 	color: #000000;
 	text-decoration: none;
 	font-weight: bold;
@@ -86,7 +86,7 @@ div.subnav {
 }
 
 div.subnav a {
-	padding: 4px 8px 6px;
+	padding: 4px 8px 7px;
 	color: #000000;
 	text-decoration: none;
 }
