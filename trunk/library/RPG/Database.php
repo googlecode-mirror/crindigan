@@ -113,14 +113,17 @@ class RPG_Database
 			$sql = $this->_processReplacements($sql, $bind);
 		}
 		
+		$before = microtime(true);
 		$result = $this->_mysqli->query($sql);
+		$time   = round(microtime(true) - $before, 5);
+		
+		$this->_queryCount++;
+		$this->_writeDebug($sql, $time);
 		
 		if ($result === false)
 		{
 			throw new RPG_Exception('MySQLi query error: [' . $this->errno() . '] ' . $this->error() . "\n\nSQL: " . $sql);
 		}
-		
-		$this->_queryCount++;
 		
 		// wrap MySQLi_Result with RPG_Database_Result
 		if ($result instanceof MySQLi_Result)
@@ -476,5 +479,10 @@ class RPG_Database
 	public function close()
 	{
 		$this->_mysqli->close();
+	}
+	
+	protected function _writeDebug($sql, $time)
+	{
+		RPG::debug("<strong>Query #{$this->_queryCount} - {$time}s:</strong> <a href=\"#\" onclick=\"RPG.toggle(this); RPG.toggle('#rpg_debug_query_{$this->_queryCount}'); return false;\">[Show Query]</a><div style=\"display:none\" id=\"rpg_debug_query_{$this->_queryCount}\">{$sql}</div>");
 	}
 }

@@ -34,12 +34,23 @@ class HomeController extends RPG_Controller
 	public function doIndex()
 	{
 		$t = RPG::template('home/index.php');
-		$t->query = 'blah'; //RPG::model('news')->getEntries(5);
+		$t->newsEntries = RPG::model('news')->getEntries(array(
+			'where' => array('news_time <= :0', RPG_NOW)
+		));
+		
+		// characters, squads, money, active battles
+		// not finalized, some could be injected right in the template itself
+		$t->characters    = 5;
+		$t->maxCharacters = 16;
+		$t->squads        = 3;
+		$t->maxSquads     = 8;
+		$t->money         = 17338;
+		$t->moneyName     = 'Aurum';
+		$t->activeBattles = 'N/A';
 		
 		RPG::view()->setNavCurrent('home', 'home')
 		           ->setTitle('RPG Home')
 		           ->setContent($t);
-		
 	}
 	
 	public function doNews()

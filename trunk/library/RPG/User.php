@@ -85,6 +85,8 @@ class RPG_User
 			'user_id' => 0,
 			'user_name' => 'Guest',
 		);
+		RPG::session()->userId   = 0;
+		RPG::session()->loggedIn = false;
 	}
 	
 	/**

@@ -48,7 +48,7 @@ class NewsModel
 	 * - getUser: Will fetch the author name (true)
 	 * - limit:   Max number of entries to fetch (5)
 	 * - offset:  Number to start fetching entries (0)
-	 * - where:   Optional where clause (empty)
+	 * - where:   Optional where clause (array())
 	 * - order:   How to order the result (array('news_time' => 'DESC'))
 	 *
 	 * @param  array $options List of options.
@@ -61,7 +61,7 @@ class NewsModel
 			'getUser' => true,
 			'limit'   => 5,
 			'offset'  => 0,
-			'where'   => '',
+			'where'   => array(),
 			'order'   => array('news_time' => 'DESC'),
 		);
 		$options = array_merge($default, $options);
@@ -80,9 +80,17 @@ class NewsModel
 			       ->addLeftJoin('user', 'user_id = news_author');
 		}
 		
+		if ($options['where'])
+		{
+			// first element is condition, and the rest are bind params
+			$where = array_shift($options['where']);
+			$select->addWhere($where);
+			$select->setBind($options['where']);
+		}
+		
 		$select->setOrderBy($options['order'])
 		       ->setLimit($options['limit'], $options['offset']);
 		
-		return $select->execute();
+		return $select->execute()->fetchMapped('news_id');
 	}
 }

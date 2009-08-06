@@ -26,6 +26,7 @@ return array(
 	'baseUrl' => '',
 	'debug'   => false,
 	'usegzip' => true,
+	'authAdapter' => '',
 	'database' => array(
 		'username' => '',
 		'password' => '',
@@ -41,6 +42,11 @@ return array(
 		'prefix'   => '',
 	),
 	'sessionLifetime' => 1800,
+	'sessionHybrid' => true,
 	'cookiePrefix' => '',
 	'cookieSalt'   => '',
+	
+	//'cachePath' => '',
+	//'tmpPath'   => '',
+	//'sessionPath' => '',
 );

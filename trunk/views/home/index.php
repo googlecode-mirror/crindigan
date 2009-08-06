@@ -1,14 +1,18 @@
 <div class="yui-gc">
 	<div class="yui-u first">
+		<?php foreach ($newsEntries AS $entry) { ?>
 		<div class="block">
-			<div class="block-header">Select Query</div>
+			<div class="block-header"><?php $this->escape($entry['news_title']) ?></div>
 			<div class="block-body">
-			<p><?php echo nl2br($query) ?></p>
+			<?php echo $entry['news_body'] ?>
 			</div>
 			<div class="block-footer">
-				Posted by <a href="<?php echo $this->url('user/view/1') ?>">Indigo</a> - Today, 7:08 PM
+				Posted by <a href="<?php echo $this->url('user/view/' . $entry['news_author']) ?>"><?php $this->escape($entry['user_name']) ?></a> - <?php echo date('Y-m-d h:i:s A', $entry['news_time']) ?>
+				<!-- todo: a fancy date function to handle timezones, today/yesterday, etc. -->
 			</div>
 		</div>
+		<?php } ?>
+		
 		<div class="block">
 			<div class="block-header">RPG Open</div>
 			<div class="block-body">
@@ -32,7 +36,7 @@
 			</div>
 		</div>
 		<div class="block">
-			<div class="block-header">Urgent: Lorem is Gay</div>
+			<div class="block-header">Urgent: Lorem has Rabies</div>
 			<div class="block-body">
 			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum at quam nisl, eu fermentum nisi. Sed sit amet nisl nec justo ornare aliquet non eget turpis. Aliquam ullamcorper nisl ac leo ultricies sodales. Nulla porta, ligula vel tempus blandit, libero urna tempus diam, quis fringilla lectus risus luctus urna. Sed tempus magna magna. Nunc non blandit diam. Vivamus est libero, feugiat ut tincidunt commodo, ullamcorper sed metus. Mauris ligula urna, commodo quis vestibulum id, tempor a mi. Vivamus vehicula dolor sit amet orci auctor vitae consectetur eros venenatis. Etiam justo dui, tincidunt eget euismod tristique, blandit quis neque. Duis id dui non sapien accumsan congue.</p>
 
@@ -46,10 +50,10 @@
 	<div class="yui-u">
 		<div class="block-header">Quick Stats</div>
 		<div class="block-body">
-		Characters: 5 / 16<br />
-		Squads: 3 / 8<br />
-		Aurum: 17,338<br />
-		Active Battles: <a href="<?php echo $this->url('battle/my') ?>">N/A</a>
+		Characters: <?php $this->escape($characters) ?> / <?php $this->escape($maxCharacters) ?><br />
+		Squads: <?php $this->escape($squads) ?> / <?php $this->escape($maxSquads) ?><br />
+		<?php $this->escape($moneyName) ?>: <?php $this->escape(number_format($money)) ?><br />
+		Active Battles: <a href="<?php echo $this->url('battle/my') ?>"><?php $this->escape($activeBattles) ?></a>
 		</div>
 	</div>
 </div>

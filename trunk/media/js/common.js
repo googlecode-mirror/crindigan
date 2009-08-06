@@ -116,6 +116,13 @@ YUI().use('node', function(Y)
 		};
 	};
 	
+	RPG.toggle = function(id)
+	{
+		var el = Y.get(id),
+		    ds = el.getStyle('display');
+		el.setStyle('display', (el.getStyle('display') !== 'none') ? 'none' : '');
+	};
+	
 	/**
 	 * Sets up an input box so that its default value is removed when
 	 * focused, and brought back if blurred and the box is empty.

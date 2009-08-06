@@ -26,11 +26,18 @@
 define('RPG_ROOT', dirname(__FILE__));
 define('RPG_NOW', time());
 define('RPG_VERSION', '0.0.1');
+$config = require RPG_ROOT . '/config.php';
+
+// If you want to move the library/ folder outside of public_html for security
+// reasons, define RPG_LIBRARY_PATH inside of your config.php
+if (!defined('RPG_LIBRARY_PATH')) {
+	define('RPG_LIBRARY_PATH', RPG_ROOT . '/library');
+}
 
 // Set up the autoloader
 function __autoload($className)
 {
-	$filePath = RPG_ROOT . '/library/' . str_replace('_', '/', $className) . '.php';
+	$filePath = RPG_LIBRARY_PATH . '/' . str_replace('_', '/', $className) . '.php';
 	if (file_exists($filePath))
 	{
 		require $filePath;
@@ -39,19 +46,24 @@ function __autoload($className)
 	return false;
 }
 
+// start the timer
+RPG::set('__debug_time', microtime(true));
+
 // Set up the error handler
 set_error_handler(array('RPG', 'handlePhpError'));
 
-// default config items
+// Default configuration items
 $defaultConfig = array(
 	'modelPath' => RPG_ROOT . '/models',
 	'viewPath'  => RPG_ROOT . '/views',
 	'controllerPath' => RPG_ROOT . '/controllers',
+	'cachePath' => RPG_ROOT . '/cache',
+	'tmpPath' => RPG_ROOT . '/tmp',
+	'sessionPath' => RPG_ROOT . '/tmp/sessions',
+	'objectsPath' => RPG_ROOT . '/cache/objects',
 );
 
-// Initialize the configuration array
-$config = require RPG_ROOT . '/config.php';
-
+// Override defaults if needed
 $config = array_merge($defaultConfig, $config);
 
 try
@@ -69,6 +81,9 @@ try
 	
 	// Process the request
 	RPG::router($config['controllerPath'])->processRequest();
+	
+	// stop the timer - needs to be here so it can get rendered via templates
+	RPG::debug('Execution Time (pre-render): ' . round(microtime(true) - RPG::get('__debug_time'), 4));
 	
 	// Render the output - TODO: handle styles differently later
 	RPG::view()->render();

@@ -319,12 +319,14 @@ class RPG_View
 		
 		$gzworked = false;
 		
-		// gzip the output if we can
-		// headers can't be sent or else we won't be able to set content-encoding
+		// gzip the output if we can.
+		// headers can't be sent or else we won't be able to set content-encoding.
+		// only gzipping if output is >1kb, make this configurable?
 		if (RPG::config('usegzip') AND !RPG::isRegistered('nogzip')
 			AND isset($_SERVER['HTTP_ACCEPT_ENCODING'])
 			AND strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false
-			AND !headers_sent())
+			AND !headers_sent()
+			AND strlen($output) > 1024)
 		{
 			$output = $this->getGzippedText($output, $gzworked);
 		}

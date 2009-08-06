@@ -63,15 +63,18 @@ class RPG_Exception extends Exception
 		$trace = $this->getTrace();
 		//array_shift($trace);
 		
-		foreach ($trace AS $entry)
+		if (is_array($trace))
 		{
-			if (!isset($entry['file']))
+			foreach ($trace AS $entry)
 			{
-				continue;
+				if (!isset($entry['file']))
+				{
+					continue;
+				}
+				$file = str_replace(RPG_ROOT, '', $entry['file']);
+				$src  = $this->_getSourceLines($entry);
+				$out .= "<strong style=\"font-size: 10pt\">$file : $entry[line]</strong><br />\n<span style=\"font-size:9pt\">- $entry[function](" . $this->_formatArgs($entry['args']) . ")</span>\n$src\n";
 			}
-			$file = str_replace(RPG_ROOT, '', $entry['file']);
-			$src  = $this->_getSourceLines($entry);
-			$out .= "<strong style=\"font-size: 10pt\">$file : $entry[line]</strong><br />\n<span style=\"font-size:9pt\">- $entry[function](" . $this->_formatArgs($entry['args']) . ")</span>\n$src\n";
 		}
 		
 		return $out;
@@ -86,9 +89,11 @@ class RPG_Exception extends Exception
 	 */
 	protected function _getSourceLines(array $trace)
 	{
-		$start = $trace['line'] - 5;
-		$end   = $trace['line'] + 3;
-		$lines = array_slice(file($trace['file']), $start, $end - $start + 1);
+		$lines = file($trace['file']);
+		$start = max(0, $trace['line'] - 5);
+		$end   = min(sizeof($lines) - 1, $trace['line'] + 3);
+		
+		$lines = array_slice($lines, $start, $end - $start + 1);
 		
 		$out = "<pre style=\"background-color:#E8E8E8; font-size: 8pt;\">\n";
 		
@@ -134,15 +139,19 @@ class RPG_Exception extends Exception
 			return '';
 		}
 		
-		foreach ($args AS &$arg)
+		$out = array();
+		foreach ($args AS $arg)
 		{
 // 			if (is_string($arg) AND strlen($arg) > 70)
 // 			{
 // 				$arg = substr($arg, 0, 68) . '...';
 // 			}
-			$arg = str_replace("\n", '', var_export($arg, true));
+			$s = str_replace("\n", '', var_export($arg, true));
+			$s = str_replace('::__set_state(array', '(', $s);
+			
+			$out[] = $s;
 		}
 		
-		return htmlentities(implode(', ', $args));
+		return htmlentities(implode(', ', $out));
 	}
 }
