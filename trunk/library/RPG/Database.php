@@ -338,7 +338,9 @@ class RPG_Database
 	 */
 	public function prepareValue($value)
 	{
-		if (is_numeric($value))
+		// force input to be 123, not string "123"
+		// prevents stuff like "000456.78" from not being escaped.
+		if (is_numeric($value) AND !is_string($value))
 		{
 			return $value;
 		}
