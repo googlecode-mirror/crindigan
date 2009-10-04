@@ -43,7 +43,7 @@ class RPG_Controller
 	{
 		// add YUI 3 and common JS
 		RPG::view()->setLayout($this->_layout)
-		           ->addScript('http://yui.yahooapis.com/3.0.0b1/build/yui/yui-min.js', true)
+		           ->addScript('http://yui.yahooapis.com/3.0.0/build/yui/yui-min.js', true)
 		           ->addScript('media/js/common.js');
 		
 		$this->_setupPublicMenu();
@@ -86,12 +86,12 @@ class RPG_Controller
 					'quest'    => 'Quests',
 					'usershop' => 'Your Shops',
 				))
-			->setNavEntry('library', 'library', 'Library')
-				->setSubNavEntry('library', array(
-					'library/jobs'    => 'Jobs',
-					'library/skills'  => 'Skills',
-					'library/items'   => 'Items',
-					'library/deities' => 'Deities',
+			->setNavEntry('info', 'info', 'Library')
+				->setSubNavEntry('info', array(
+					'info/jobs'    => 'Jobs',
+					'info/skills'  => 'Skills',
+					'info/items'   => 'Items',
+					'info/deities' => 'Deities',
 				))
 			->setNavEntry('user', 'user', 'User')
 				->setSubNavEntry('user', array(
