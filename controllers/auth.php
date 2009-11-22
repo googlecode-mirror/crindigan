@@ -46,9 +46,9 @@ class AuthController extends RPG_Controller
 		}
 		
 		$post = RPG::input()->post(array('username' => 'string',
-										 'password' => 'string',
-										 'remember' => 'uint',
-										 'returnto' => 'string'));
+		                                 'password' => 'string',
+		                                 'remember' => 'uint',
+		                                 'returnto' => 'string'));
 		// initialize auth class
 		$auth = RPG_Auth::factory($post['username'], $post['password']);
 		
@@ -94,7 +94,7 @@ class AuthController extends RPG_Controller
 		$user = RPG::user();
 		
 		if ($hash === sha1($user->id . sha1($user->salt) . sha1($user->name)
-						   . sha1(RPG::config('cookieSalt'))))
+		                   . sha1(RPG::config('cookieSalt'))))
 		{
 			$user->clearAutoLogin();
 			RPG::session()->loggedIn = false;

@@ -67,11 +67,12 @@ class RPG_Controller
 					'recruit' => 'Recruit Soldiers',
 					'character/search' => 'Search Characters',
 				))
-			->setNavEntry('inventory', 'inventory', 'Inventory')
+			->setNavEntry('inventory', 'inventory', 'Items')
 				->setSubNavEntry('inventory', array(
 					'inventory' => 'View Inventory',
-					'inventory/exchange' => 'Exchange Items',
+					'inventory/exchange' => 'Inventory Exchange',
 					'create' => 'Item Creation',
+					'trade' => 'Item Trading',
 				))
 			->setNavEntry('battle', 'battle', 'Battles')
 				->setSubNavEntry('battle', array(

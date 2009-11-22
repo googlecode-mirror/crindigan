@@ -29,10 +29,25 @@
  */
 abstract class RPG_Auth
 {
+	/**
+	 * Username to authenticate.
+	 *
+	 * @var string
+	 */
 	protected $_username = '';
 	
+	/**
+	 * Password of the user.
+	 *
+	 * @var string
+	 */
 	protected $_password = '';
 	
+	/**
+	 * The ID of the user, as set within authenticate()
+	 *
+	 * @var integer
+	 */
 	protected $_userId = 0;
 	
 	/**
