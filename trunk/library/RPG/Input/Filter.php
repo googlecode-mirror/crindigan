@@ -164,7 +164,7 @@ class RPG_Input_Filter
 	 * @param  mixed $var
 	 * @param  array $options allowNull - True to allow null bytes
 	 *                        maxLength - Will trim string to this length
-	 *                        noHtml    - Will run htmlentities() on string
+	 *                        noHtml    - Will run htmlspecialchars() on string
 	 *                        noTrim    - Will not trim() the string
 	 *                        onlyChars - Only allow the given chars (regex charclass)
 	 * @return string

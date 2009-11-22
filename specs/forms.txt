@@ -1,0 +1,53 @@
+Form Library
+============
+
+This document describes the workings of the form library, contained within
+the RPG_Form namespace. The form library should facilitate the creation,
+validation, and population of form elements. When retrieving values, it should
+convert user input
+
+
+Creation
+--------
+
+Form creation will be handled by calling methods on an RPG_Form instance::
+
+	$form = new RPG_Form;
+	$t = $form->add('text', array(
+	    'name' => 'blah',
+	    'size' => 20,
+	    'value' => $blah,
+	));
+	$t->addValidator('regex', '#[A-Za-z0-9]+#');
+
+Some other text.
+
+Validation
+----------
+
+The validation portion should take user input from the request, and run each
+form element through its set series of validators. If all the validators are
+successful, then the program can continue as normal. If not, then the system
+will display a message for each validation failure at each of the form
+elements, and prompt the user to resubmit the form.
+
+Validators can be specified within the "validators" key of the element options
+when adding an element, or can be added via an element's addValidator() method.
+
+Method 1::
+
+	$form->addText(array(
+	    'name' => 'blah',
+	    'validators' => array(
+	    	'regex' => '#^[A-Za-z0-9]+$#',
+	    ),
+	));
+
+Method 2::
+
+	$text = $form->addText(array('name' => 'blah'));
+	$text->addValidator('regex', '#^[A-Za-z0-9]+$#');
+
+Population
+----------
+
