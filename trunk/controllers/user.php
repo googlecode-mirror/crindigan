@@ -59,6 +59,7 @@ class UserController extends RPG_Controller
 	 */
 	public function doView($userId = 0)
 	{
+		RPG::router()->setCurrentAction('index');
 		$this->doIndex($userId);
 	}
 	

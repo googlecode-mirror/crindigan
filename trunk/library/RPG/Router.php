@@ -45,6 +45,27 @@ class RPG_Router
 	protected $_controllerPath = '';
 	
 	/**
+	 * Current controller name.
+	 *
+	 * @var string
+	 */
+	protected $_controller = 'index';
+	
+	/**
+	 * Current action name.
+	 *
+	 * @var string
+	 */
+	protected $_action = 'index';
+	
+	/**
+	 * Current parameters.
+	 *
+	 * @var array
+	 */
+	protected $_parameters = array();
+	
+	/**
 	 * Initializes the router. Protected to enforce singleton pattern.
 	 */
 	protected function __construct()
@@ -95,7 +116,7 @@ class RPG_Router
 		
 		$controller = $this->_getController($parts['controller']);
 		$action     = $this->_getActionName($parts['action']);
-		RPG::set('current_params', $parts['params']);
+		$this->_parameters = $parts['params'];
 		
 		if (!method_exists($controller, $action))
 		{
@@ -144,6 +165,72 @@ class RPG_Router
 	}
 	
 	/**
+	 * Sets the current controller name.
+	 *
+	 * @param  string $controller
+	 * @return RPG_Router
+	 */
+	public function setCurrentController($controller = 'index')
+	{
+		$this->_controller = $controller;
+		return $this;
+	}
+	
+	/**
+	 * Sets the current action name.
+	 *
+	 * @param  string $action
+	 * @return RPG_Router
+	 */
+	public function setCurrentAction($action = 'index')
+	{
+		$this->_action = $action;
+		return $this;
+	}
+	
+	/**
+	 * Sets the current parameters.
+	 *
+	 * @param  array $params
+	 * @return RPG_Router
+	 */
+	public function setCurrentParams(array $params = array())
+	{
+		$this->_parameters = $params;
+		return $this;
+	}
+	
+	/**
+	 * Gets the current controller name.
+	 *
+	 * @return string
+	 */
+	public function getCurrentController()
+	{
+		return $this->_controller;
+	}
+	
+	/**
+	 * Gets the current action name, or index if not set.
+	 *
+	 * @return string
+	 */
+	public function getCurrentAction()
+	{
+		return $this->_action;
+	}
+	
+	/**
+	 * Gets the current parameters, or an empty array.
+	 *
+	 * @return array
+	 */
+	public function getCurrentParams()
+	{
+		return $this->_parameters;
+	}
+	
+	/**
 	 * Attempts to find and load the controller class, given the controller
 	 * component inside of the URL.
 	 *
@@ -165,7 +252,7 @@ class RPG_Router
 			throw new RPG_Exception('Controller "' . $className . '" not found in "' . $this->_controllerPath . '".');
 		}
 		
-		RPG::set('current_controller', $urlPart);
+		$this->_controller = $urlPart;
 		
 		require $fileName;
 		return new $className();
@@ -176,7 +263,7 @@ class RPG_Router
 	 * the request URI. Dashes create separate words, which are all
 	 * capitalized and placed after "do."
 	 * 
-	 * For example, "update-stats" translates into doUpdateStats()
+	 * For example, "update-stats" translates into doUpdateStats
 	 *
 	 * @param  string $urlPart
 	 * @return string
@@ -185,7 +272,7 @@ class RPG_Router
 	{
 		$urlPart = preg_replace('#[^a-zA-Z0-9-]#', '', $urlPart);
 		$urlPart = preg_replace('#-{2,}#', '-', $urlPart);
-		RPG::set('current_action', $urlPart);
+		$this->_action = $urlPart;
 		
 		$method  = 'do' . implode('', array_map('ucfirst', explode('-', $urlPart)));
 		return $method;

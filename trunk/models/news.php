@@ -52,7 +52,7 @@ class NewsModel
 	 * - order:   How to order the result (array('news_time' => 'DESC'))
 	 *
 	 * @param  array $options List of options.
-	 * @return array
+	 * @return array News entries referenced by news_id.
 	 */
 	public function getEntries(array $options = array())
 	{
@@ -67,8 +67,7 @@ class NewsModel
 		$options = array_merge($default, $options);
 		
 		$select = RPG::database()->select('news')
-		                         ->addColumns(array('news_id', 'news_author',
-		                                            'news_title', 'news_time'));
+		                         ->addColumns('news_id', 'news_author', 'news_title', 'news_time');
 		if ($options['getBody'])
 		{
 			$select->addColumns('news_body');

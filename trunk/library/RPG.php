@@ -338,16 +338,16 @@ final class RPG
 		
 		if ($controller === '*')
 		{
-			$controller = self::get('current_controller', 'index');
+			$controller = self::router()->getCurrentController();
 		}
 		if ($action === '*')
 		{
-			$action = self::get('current_action', 'index');
+			$action = self::router()->getCurrentAction();
 		}
 		
 		if (isset($params[0]) AND $params[0] === '*')
 		{
-			$params = self::get('current_params', array());
+			$params = self::router()->getCurrentParams();
 		}
 		
 		if (is_string($query) AND $query === '*')

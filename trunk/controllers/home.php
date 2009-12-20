@@ -58,7 +58,7 @@ class HomeController extends RPG_Controller
 	}
 	
 	/**
-	 * Displays more news articles and a navigatable archive.
+	 * Displays more news articles and a navigable archive.
 	 */
 	public function doNews()
 	{
