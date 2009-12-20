@@ -39,7 +39,7 @@ class RPG_Auth_Vbulletin extends RPG_Auth
 	public function authenticate()
 	{
 		// connect to vBulletin's database
-		$vbDatabase = RPG::database('extDatabase');
+		$vbDatabase = RPG::database('authDatabase');
 		
 		$username = htmlspecialchars($this->_username, ENT_COMPAT, 'UTF-8', false);
 		$result   = $vbDatabase->query('SELECT userid, username, password, salt, email

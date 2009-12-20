@@ -183,11 +183,11 @@ class RPG_Router
 	 */
 	protected function _getActionName($urlPart)
 	{
+		$urlPart = preg_replace('#[^a-zA-Z0-9-]#', '', $urlPart);
 		$urlPart = preg_replace('#-{2,}#', '-', $urlPart);
 		RPG::set('current_action', $urlPart);
 		
 		$method  = 'do' . implode('', array_map('ucfirst', explode('-', $urlPart)));
-		$method  = preg_replace('#[^a-zA-Z0-9]#', '', $method);
 		return $method;
 	}
 }

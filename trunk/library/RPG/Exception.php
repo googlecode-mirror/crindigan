@@ -99,8 +99,7 @@ class RPG_Exception extends Exception
 		
 		for ($i = $start; $i <= $end; $i++)
 		{
-			$fmt = sprintf('%4d. %s', $i + 1, 
-				$this->_formatSource($lines[$i - $start], $trace['function']));
+			$fmt = sprintf('%4d. %s', $i + 1, $this->_formatSource($lines[$i - $start]));
 			if ($i === $trace['line'] - 1)
 			{
 				$fmt = "<strong style=\"background-color:#FFC0C0\">$fmt</strong>";
@@ -113,16 +112,14 @@ class RPG_Exception extends Exception
 	
 	/**
 	 * Formats a single line of source code, stripping HTML, changing tabs
-	 * to spaces, and underlining the function call.
+	 * to spaces.
 	 *
 	 * @param  string $line
-	 * @param  string $function
 	 * @return string
 	 */
-	protected function _formatSource($line, $function)
+	protected function _formatSource($line)
 	{
-		$line = htmlentities(str_replace("\t", '    ', rtrim($line)));
-		return str_replace($function, "<ins>$function</ins>", $line);
+		return htmlentities(str_replace("\t", '    ', rtrim($line)));
 	}
 	
 	/**

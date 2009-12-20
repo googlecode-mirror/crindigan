@@ -31,6 +31,10 @@ class HomeController extends RPG_Controller
 {
 	protected $_layout = 'layouts/frontend.php';
 	
+	/**
+	 * Displays the main frontend dashboard. Contains latest news entries
+	 * along with miscellaneous/important information in the sidebar.
+	 */
 	public function doIndex()
 	{
 		$t = RPG::template('home/index.php');
@@ -53,6 +57,9 @@ class HomeController extends RPG_Controller
 		           ->setContent($t);
 	}
 	
+	/**
+	 * Displays more news articles and a navigatable archive.
+	 */
 	public function doNews()
 	{
 		RPG::view()->setNavCurrent('home', 'home/news')

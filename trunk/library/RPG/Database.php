@@ -135,6 +135,15 @@ class RPG_Database
 	}
 	
 	/**
+	 * TODO
+	 *
+	 */
+	public function prepare($sql)
+	{
+		return new RPG_Database_Statement($this->_mysqli->prepare($sql));
+	}
+	
+	/**
 	 * Executes the given SQL and calls the fetch() method on the result.
 	 *
 	 * @param  string $sql
@@ -311,7 +320,7 @@ class RPG_Database
 		
 		$table = '{' . $table . '}';
 		$query = "DELETE FROM {$table}\n"
-		       . (empty($whereClause) ? '' : "WHERE $whereClause");
+		       . (!isset($whereClause) ? '' : "WHERE $whereClause");
 		$this->query($query, $condition);
 		
 		return $this->_mysqli->affected_rows;
@@ -331,21 +340,38 @@ class RPG_Database
 	
 	/**
 	 * Cleanses a value. If numeric, simply returns the number. If a string,
-	 * it escapes the text and surrounds it with single quotes.
+	 * it escapes the text and surrounds it with single quotes. If boolean,
+	 * the value becomes 1 for true and 0 for false. If null, the value
+	 * becomes the unescaped string "NULL".
 	 *
-	 * @param  mixed $value
+	 * @param  scalar $value
 	 * @return mixed
 	 */
 	public function prepareValue($value)
 	{
-		// force input to be 123, not string "123"
-		// prevents stuff like "000456.78" from not being escaped.
-		if (is_numeric($value) AND !is_string($value))
+		// checking resource as PHP docs say not to rely on is_scalar for that.
+		if (!is_scalar($value) OR is_resource($value))
 		{
-			return $value;
+			throw new RPG_Exception('RPG_Database::prepareValue() only accepts scalar values.');
 		}
 		
-		return "'" . $this->escape($value) . "'";
+		// escape strings and wrap in single quotes
+		if (is_string($value))
+		{
+			$value = "'" . $this->escape($value) . "'";
+		}
+		
+		if (is_bool($value))
+		{
+			$value = $value ? 1 : 0;
+		}
+		
+		if (is_null($value))
+		{
+			$value = 'NULL';
+		}
+		
+		return $value;
 	}
 	
 	/**

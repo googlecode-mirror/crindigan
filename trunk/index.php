@@ -34,8 +34,11 @@ if (!defined('RPG_LIBRARY_PATH')) {
 	define('RPG_LIBRARY_PATH', RPG_ROOT . '/library');
 }
 
+//
 // Set up the autoloader
-function __autoload($className)
+//
+
+function rpg_autoload($className)
 {
 	$filePath = RPG_LIBRARY_PATH . '/' . str_replace('_', '/', $className) . '.php';
 	if (file_exists($filePath))
@@ -45,9 +48,32 @@ function __autoload($className)
 	}
 	return false;
 }
+spl_autoload_register('rpg_autoload');
 
-// start the timer
+//
+// Preload files that are always needed to avoid having to autoload everything.
+//
+
+require RPG_LIBRARY_PATH . '/RPG.php';
+
+// start the debug timer
 RPG::set('__debug_time', microtime(true));
+
+require RPG_LIBRARY_PATH . '/RPG/Database.php';
+require RPG_LIBRARY_PATH . '/RPG/Database/Result.php';
+require RPG_LIBRARY_PATH . '/RPG/Input.php';
+require RPG_LIBRARY_PATH . '/RPG/Model.php';
+require RPG_LIBRARY_PATH . '/RPG/View.php';
+require RPG_LIBRARY_PATH . '/RPG/Controller.php';
+require RPG_LIBRARY_PATH . '/RPG/Router.php';
+require RPG_LIBRARY_PATH . '/RPG/Template.php';
+require RPG_LIBRARY_PATH . '/RPG/Session.php';
+require RPG_LIBRARY_PATH . '/RPG/User.php';
+
+// maybe add hybrid session handler
+if (isset($config['sessionHybrid']) AND $config['sessionHybrid'] === true) {
+	require RPG_LIBRARY_PATH . '/RPG/Session/Hybrid.php';
+}
 
 // Set up the error handler
 set_error_handler(array('RPG', 'handlePhpError'));
@@ -65,6 +91,11 @@ $defaultConfig = array(
 
 // Override defaults if needed
 $config = array_merge($defaultConfig, $config);
+
+//
+// Start the main execution!
+// Top-level try/catch block for a last-ditch effort error page.
+//
 
 try
 {
@@ -90,6 +121,7 @@ try
 }
 catch (RPG_Exception $ex)
 {
+	// Basic error page
 	echo '<html>
 <head>
 	<title>Application Error</title>

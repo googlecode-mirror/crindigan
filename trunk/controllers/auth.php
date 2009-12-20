@@ -31,12 +31,17 @@
 class AuthController extends RPG_Controller
 {
 	/**
-	 * Handles the login procedure. Receives "username", "password", and
-	 * "remember" via a POST request, and tries to authenticate the user.
+	 * Handles the login procedure.
 	 * 
 	 * If the user is authenticated, it will log the user in, set up the
 	 * user instance to handle a registered user. If "remember" is given,
 	 * also refresh the user's auto login key.
+	 * 
+	 * POST Parameters
+	 * - username: string
+	 * - password: string
+	 * - remember: uint
+	 * - returnto: string
 	 */
 	public function doLogin()
 	{
@@ -87,11 +92,15 @@ class AuthController extends RPG_Controller
 	
 	/**
 	 * Logs the user out of the system.
+	 * 
+	 * GET Parameters
+	 * - hash: string
+	 * - returnto: string
 	 */
-	public function doLogout($hash = '')
+	public function doLogout()
 	{
-		// todo - have a logout hash
 		$user = RPG::user();
+		$hash = RPG::input()->get('hash', 'string');
 		
 		if ($hash === sha1($user->id . sha1($user->salt) . sha1($user->name)
 		                   . sha1(RPG::config('cookieSalt'))))

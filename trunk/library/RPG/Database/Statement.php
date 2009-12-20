@@ -22,31 +22,3 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GPL
  */
 
-return array(
-	'baseUrl' => '',
-	'debug'   => false,
-	'usegzip' => true,
-	'authAdapter' => '',
-	'database' => array(
-		'username' => '',
-		'password' => '',
-		'database' => '',
-		'server'   => 'localhost',
-		'prefix'   => '',
-	),
-	'authDatabase' => array(
-		'username' => '',
-		'password' => '',
-		'database' => '',
-		'server'   => 'localhost',
-		'prefix'   => '',
-	),
-	'sessionLifetime' => 1800,
-	'sessionHybrid' => true,
-	'cookiePrefix' => '',
-	'cookieSalt'   => '',
-	
-	//'cachePath' => '',
-	//'tmpPath'   => '',
-	//'sessionPath' => '',
-);
