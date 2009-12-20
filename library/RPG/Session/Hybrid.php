@@ -33,6 +33,12 @@
  */
 class RPG_Session_Hybrid extends RPG_Session
 {
+	/**
+	 * Reads session data from the temporary session file.
+	 *
+	 * @param  string $sessionId
+	 * @return string Encoded session data.
+	 */
 	public function read($sessionId)
 	{
 		//$userId = RPG::database()->queryOne("SELECT session_user_id FROM {session_memory}
@@ -47,6 +53,14 @@ class RPG_Session_Hybrid extends RPG_Session
 		return '';
 	}
 	
+	/**
+	 * Writes session data, splitting basic information into a MEMORY table,
+	 * and other metadata into a temporary file.
+	 *
+	 * @param  string $sessionId
+	 * @param  string $sessionData
+	 * @return bool
+	 */
 	public function write($sessionId, $sessionData)
 	{
 		// the file portion
@@ -73,6 +87,11 @@ class RPG_Session_Hybrid extends RPG_Session
 		return true;
 	}
 	
+	/**
+	 * Deletes the temporary session file and the database record.
+	 *
+	 * @param  string $sessionId
+	 */
 	public function destroy($sessionId)
 	{
 		$file = $this->_getFile($sessionId);
@@ -84,6 +103,13 @@ class RPG_Session_Hybrid extends RPG_Session
 		RPG::database()->delete('session_memory', array('session_id = :0', $sessionId));
 	}
 	
+	/**
+	 * Removes all expired session records from the database along with their
+	 * corresponding temporary files.
+	 *
+	 * @param  int $maxLifetime
+	 * @return bool
+	 */
 	public function gc($maxLifetime)
 	{
 		$cut = RPG_NOW - $maxLifetime;
@@ -104,6 +130,13 @@ class RPG_Session_Hybrid extends RPG_Session
 		return true;
 	}
 	
+	/**
+	 * Returns the path to the temporary file for the given session ID, using
+	 * the session path configured in the config file as a base.
+	 *
+	 * @param  string $sessionId
+	 * @return string Path to temporary file: {$sessionPath}/sess_{$sessionId}
+	 */
 	protected function _getFile($sessionId)
 	{
 		return RPG::config('sessionPath') . '/sess_' . $sessionId;

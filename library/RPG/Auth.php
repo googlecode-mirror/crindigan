@@ -64,8 +64,8 @@ abstract class RPG_Auth
 	
 	/**
 	 * Returns an instance of an RPG_Auth subclass, given the username,
-	 * password, and an adapter. If the adapter is not given, it will
-	 * use the authAdapter setting as defined in config.php.
+	 * password, and an adapter class name. If the adapter is not given,
+	 * it will use the authAdapter setting as defined in config.php.
 	 *
 	 * @param  string $username
 	 * @param  string $password
@@ -79,9 +79,11 @@ abstract class RPG_Auth
 			$adapter = RPG::config('authAdapter');
 		}
 		
-		$className = 'RPG_Auth_' . ucfirst($adapter);
-		
-		return new $className($username, $password);
+		if (is_string($adapter) AND class_exists($adapter)
+			AND is_subclass_of($adapter, 'RPG_Auth'))
+		{
+			return new $adapter($username, $password);
+		}
 	}
 	
 	/**

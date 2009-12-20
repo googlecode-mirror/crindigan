@@ -28,7 +28,7 @@
 	<div class="toplinks">
 	<?php if (RPG::user()->isLoggedIn()) { ?>
 		<a href="<?php echo $this->url('user') ?>">Logged in as <strong><?php $this->escape(RPG::user()->name) ?></strong></a>
-		<a href="<?php echo $this->url('auth/logout/' . RPG::user()->logouthash, array('returnto' => RPG::input()->getPath(true))) ?>">Logout</a>
+		<a href="<?php echo $this->url('auth/logout', array('hash' => RPG::user()->logouthash, 'returnto' => RPG::input()->getPath(true))) ?>">Logout</a>
 	<?php } else { ?>
 		<form action="<?php echo $this->url('auth/login') ?>" method="post">
 		<input type="hidden" name="returnto" value="<?php $this->escape(RPG::input()->getPath(true)) ?>" />
