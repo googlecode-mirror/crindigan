@@ -34,7 +34,7 @@ class RPG_Controller
 	 *
 	 * @var string
 	 */
-	protected $_layout = '';
+	protected $_layout = 'layouts/empty.php';
 	
 	/**
 	 * Constructor.
@@ -109,21 +109,27 @@ class RPG_Controller
 	{
 		if (RPG::config('debug') === true)
 		{
-			echo '<h2>', get_class($this), ' - Actions</h2>', "\n";
-			echo "<ul>\n";
+			$out = '<h2>' . get_class($this) . " - Actions</h2>\n"
+			     . '<a href="' . RPG::url('*') . '">&laquo; Exit Debug</a><br />'
+			     . "<ul>\n";
 			
 			$class = new ReflectionObject($this);
 			foreach ($class->getMethods() AS $method)
 			{
 				$methodName = $method->getName();
-				if (strpos($methodName, 'do') === 0)
+				if (strpos($methodName, 'do') === 0
+					AND $method->getDeclaringClass()->getName() !== 'RPG_Controller')
 				{
-					echo "\t<li><a href=\"", RPG::url('*/debug-view-action/' . $methodName),
-						 "\">", substr($methodName, 2), '</a>', 
-						 ($method->getDocComment() === false) ? ' - No doc comment!' : '', "</li>\n";
+					$out .= "\t<li><a href=\"" . RPG::url('*/debug-view-action/' . $methodName)
+					      . "\">" . substr($methodName, 2) . '</a>'
+					      . (($method->getDocComment() === false) ? ' - No doc comment!' : '')
+					      . "</li>\n";
 				}
 			}
-			echo "</ul>";
+			$out .= '</ul>';
+			
+			RPG::view()->setLayout('layouts/empty.php')
+			           ->setContent($out);
 		}
 	}
 	
@@ -137,21 +143,23 @@ class RPG_Controller
 		if (RPG::config('debug') === true AND strpos($actionName, 'do') === 0)
 		{
 			$method = new ReflectionMethod($this, $actionName);
-			echo '<h2>', $method->getDeclaringClass()->getName(), "::$actionName()</h2>\n";
-			echo '<a href="', RPG::url('*/debug-list-actions'), '">&laquo; Go Back</a><br />';
+			$out = '<h2>' . $method->getDeclaringClass()->getName() . "::$actionName()</h2>\n"
+			     . '<a href="' . RPG::url('*/debug-list-actions') . '">&laquo; Action List</a><br /><br />';
 			
 			$start  = $method->getStartLine() - 1;
 			$end    = $method->getEndLine();
 			$file   = file($method->getFileName());
 			$lines  = array_slice($file, $start, $end - $start);
 			
-			echo "<pre>\n";
-			echo '    ', str_replace("\t", '    ', $method->getDocComment()), "\n";
+			$out .= "<pre>\n    " . str_replace("\t", '    ', $method->getDocComment()) . "\n";
 			foreach ($lines AS $line)
 			{
-				echo htmlentities(str_replace("\t", '    ', $line));
+				$out .= htmlentities(str_replace("\t", '    ', $line));
 			}
-			echo '</pre>';
+			$out .= '</pre>';
+			
+			RPG::view()->setLayout('layouts/empty.php')
+			           ->setContent($out);
 		}
 	}
 }

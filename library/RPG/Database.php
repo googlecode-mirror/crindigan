@@ -135,8 +135,10 @@ class RPG_Database
 	}
 	
 	/**
-	 * TODO
+	 * Prepares a MySQLi statement and wraps it within an
+	 * RPG_Database_Statement object.
 	 *
+	 * @param  string $sql
 	 */
 	public function prepare($sql)
 	{
@@ -502,6 +504,39 @@ class RPG_Database
 	}
 	
 	/**
+	 * Returns a list of warnings, or an empty array if there are none.
+	 *
+	 * @return array of MySQLi_Warning (properties: errno, sqlstate, message)
+	 */
+	public function getWarnings()
+	{
+		if ($this->_mysqli->warning_count === 0)
+		{
+			return array();
+		}
+		
+		$warning = $this->_mysqli->get_warnings();
+		$list    = array();
+		do
+		{
+			$list[] = $warning;
+		}
+		while ($warning->next());
+		
+		return $list;
+	}
+	
+	/**
+	 * Gets the raw MySQLi object.
+	 *
+	 * @return MySQLi
+	 */
+	public function getMysqli()
+	{
+		return $this->_mysqli;
+	}
+	
+	/**
 	 * Closes the database connection.
 	 */
 	public function close()
@@ -509,6 +544,12 @@ class RPG_Database
 		$this->_mysqli->close();
 	}
 	
+	/**
+	 * Adds query information to the debug area of the output.
+	 *
+	 * @param  string $sql The query text.
+	 * @param  int $time   The time taken to run the query.
+	 */
 	protected function _writeDebug($sql, $time)
 	{
 		RPG::debug("<strong>Query #{$this->_queryCount} - {$time}s:</strong> <a href=\"#\" onclick=\"RPG.toggle(this); RPG.toggle('#rpg_debug_query_{$this->_queryCount}'); return false;\">[Show Query]</a><div style=\"display:none\" id=\"rpg_debug_query_{$this->_queryCount}\">{$sql}</div>");

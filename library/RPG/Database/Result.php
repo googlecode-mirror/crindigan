@@ -176,6 +176,16 @@ class RPG_Database_Result
 	}
 	
 	/**
+	 * Returns the number of rows in the result.
+	 *
+	 * @return integer
+	 */
+	public function getNumRows()
+	{
+		return $this->_result->num_rows;
+	}
+	
+	/**
 	 * Frees memory associated with the result.
 	 */
 	public function free()
@@ -188,13 +198,13 @@ class RPG_Database_Result
 	}
 	
 	/**
-	 * Returns the number of rows in the result.
+	 * Gets the raw MySQLi result object.
 	 *
-	 * @return integer
+	 * @return MySQLi_Result
 	 */
-	public function getNumRows()
+	public function getResult()
 	{
-		return $this->_result->num_rows;
+		return $this->_result;
 	}
 	
 	/**

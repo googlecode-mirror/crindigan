@@ -87,6 +87,7 @@
 			<?php foreach (RPG::$debugMessages AS $__debug_msg) {
 				echo '<li>', nl2br($__debug_msg), "</li>\n";
 			} ?>
+			<li><a href="<?php echo $this->url('*/debug-list-actions') ?>">View Controller Actions</a></li>
 			</ul>
 		</div>
 	</div>

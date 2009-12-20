@@ -151,20 +151,15 @@ class RPG_Database_Select
 	}
 	
 	/**
-	 * Adds one or more columns to the column list. This method accepts
-	 * either a single column name, or an array of column names.
+	 * Adds one or more columns to the column list. You may pass multiple
+	 * parameters to this function for more column names.
 	 *
-	 * @param  string|array $col
+	 * @param  string|array $col ...
 	 * @return RPG_Database_Select
 	 */
 	public function addColumns($col)
 	{
-		if (!is_array($col))
-		{
-			$col = array($col);
-		}
-		
-		foreach ($col AS $c)
+		foreach (func_get_args() AS $c)
 		{
 			$this->_columns[] = $c;
 		}
