@@ -24,6 +24,12 @@ div#toparea h1 {
 	margin: 0;
 }
 
+div#toparea h1 a:link, div#toparea h1 a:hover, div#toparea h1 a:visited {
+	color: inherit;
+	background-color: inherit;
+	text-decoration: none;
+}
+
 div#toparea .toplinks {
 	float: right;
 	margin: .2em;
@@ -55,7 +61,6 @@ div#toparea input:hover, div#toparea input:focus {
 div#toparea input[type="checkbox"] {
 	background-color: inherit;
 	color: inherit;
-	padding: none;
 }
 
 /*

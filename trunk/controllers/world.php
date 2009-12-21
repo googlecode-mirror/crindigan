@@ -22,3 +22,11 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GPL
  */
 
+/**
+ *
+ */
+class WorldController extends RPG_Controller
+{
+	
+}
+

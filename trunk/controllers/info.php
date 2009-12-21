@@ -22,3 +22,11 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GPL
  */
 
+/**
+ *
+ */
+class InfoController extends RPG_Controller
+{
+	
+}
+

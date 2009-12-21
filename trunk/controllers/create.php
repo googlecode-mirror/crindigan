@@ -22,3 +22,13 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GPL
  */
 
+/**
+ * Item creation controller.
+ *
+ * @package Crindigan
+ */
+class CreateController extends RPG_Controller
+{
+	
+}
+
