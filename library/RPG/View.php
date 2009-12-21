@@ -94,7 +94,11 @@ class RPG_View
 	}
 	
 	/**
+	 * Sends a redirect to the browser.
 	 * 
+	 * @param  string $path
+	 * @param  array  $query
+	 * @see    RPG::url()
 	 */
 	public function redirect($path, array $query = array())
 	{
@@ -145,6 +149,12 @@ class RPG_View
 		return $this->_layout;
 	}
 	
+	/**
+	 * Sets the title of the page. If no parameter is given, clears the title.
+	 *
+	 * @param  string $title
+	 * @return RPG_View
+	 */
 	public function setTitle($title = null)
 	{
 		if ($title === null)
@@ -159,7 +169,13 @@ class RPG_View
 		return $this;
 	}
 	
-	// stylesheets, script files, inline scripts
+	/**
+	 * Adds a link to a stylesheet file in the page header.
+	 *
+	 * @param  string $file Path to the CSS file.
+	 * @param  bool $raw    If false, prepends the RPG base URL to the file path.
+	 * @return RPG_View
+	 */
 	public function addStyleSheet($file, $raw = false)
 	{
 		if ($raw === false)
@@ -171,12 +187,25 @@ class RPG_View
 		return $this;
 	}
 	
+	/**
+	 * Adds a string of inline CSS to the page header.
+	 *
+	 * @param  string $css
+	 * @return RPG_View
+	 */
 	public function addInlineCss($css)
 	{
 		$this->_inlineCss .= $css . "\n\n";
 		return $this;
 	}
 	
+	/**
+	 * Adds a script tag to include a given JavaScript file.
+	 *
+	 * @param  string $file Path to the JS file.
+	 * @param  bool $raw    If false, prepends the RPG base URL to the file path.
+	 * @return RPG_View
+	 */
 	public function addScript($file, $raw = false)
 	{
 		if ($raw === false)
@@ -188,6 +217,12 @@ class RPG_View
 		return $this;
 	}
 	
+	/**
+	 * Adds a string of inline JavaScript to the page header.
+	 *
+	 * @param  string $js
+	 * @return RPG_View
+	 */
 	public function addInlineScript($js)
 	{
 		$this->_inlineScript .= $js . "\n\n";
@@ -215,6 +250,16 @@ class RPG_View
 	// Navigation management
 	// --------------------------------
 	
+	/**
+	 * Adds an entry to the navigation.
+	 *
+	 * @param  string $id  Short alphanumeric key to reference this entry.
+	 * @param  string $url The target of the navigation entry, formatted as
+	 *                     controller/action/param1/param2/etc.
+	 * @param  string $text The text of the entry.
+	 * @param  bool $current If true, will be highlighted.
+	 * @return RPG_View
+	 */
 	public function setNavEntry($id, $url, $text, $current = false)
 	{
 		$this->_navigation[$id] = array(
@@ -226,11 +271,23 @@ class RPG_View
 		return $this;
 	}
 	
+	/**
+	 * Adds a sub navigation entry, meant to be in the row underneath the
+	 * main navigation bar.
+	 *
+	 * @param  string $id This should match a given ID from calling setNavEntry().
+	 *                    This entry will be matched with the parent.
+	 * @param  array $links An array of url => link text. The link text may be
+	 *                      substituted with an array with 'text' and 'current'
+	 *                      keys, where text is the link text and current
+	 *                      is a boolean that determines if the link is highlighted.
+	 * @return RPG_View
+	 */
 	public function setSubNavEntry($id, array $links)
 	{
 		$this->_subNavigation[$id] = array(
 			'current' => $this->_navigation[$id]['current'],
-			'entries' => $links,
+			'entries' => array(),
 		);
 		
 		foreach ($links AS $url => $entry)
@@ -245,6 +302,13 @@ class RPG_View
 		return $this;
 	}
 	
+	/**
+	 * Sets a navigation and sub-navigation entry to be current.
+	 *
+	 * @param  string $main The main navigation entry to highlight.
+	 * @param  string $sub  The sub navigation entry to highlight.
+	 * @return RPG_View
+	 */
 	public function setNavCurrent($main = '', $sub = '')
 	{
 		// set current to false for everything except the given main/sub
@@ -261,6 +325,12 @@ class RPG_View
 		return $this;
 	}
 	
+	/**
+	 * Clears the main and sub navigation entries for a given ID.
+	 *
+	 * @param  string $id
+	 * @return RPG_View
+	 */
 	public function clearNavEntry($id)
 	{
 		if (isset($this->_navigation[$id]))
@@ -271,13 +341,30 @@ class RPG_View
 		{
 			unset($this->_subNavigation[$id]);
 		}
+		
+		return $this;
 	}
 	
+	/**
+	 * Sets the navigation with the given raw array. The array has navigation
+	 * IDs for keys, and the values are three element arrays with keys 'url', 
+	 * 'text', and 'current'.
+	 *
+	 * @param  array $nav
+	 * @return RPG_View
+	 */
 	public function setNavigation(array $nav)
 	{
 		$this->_navigation = $nav;
+		return $this;
 	}
 	
+	/**
+	 * Gets the raw navigation array. See setNavigation() for array format.
+	 *
+	 * @return array
+	 * @see RPG_View::setNavigation()
+	 */
 	public function getNavigation()
 	{
 		return $this->_navigation;
@@ -287,6 +374,13 @@ class RPG_View
 	// Navbit management
 	// --------------------------------
 	
+	/**
+	 * Adds a navigation bit. Currently unused.
+	 * 
+	 * @param  string $text Text of navbit.
+	 * @param  string $url  URL of navbit.
+	 * @return RPG_View
+	 */
 	public function pushNavbit($text, $url = '')
 	{
 		// if there's no title, keep setting it to the newest navbit

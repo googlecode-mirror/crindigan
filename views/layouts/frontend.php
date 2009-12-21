@@ -40,7 +40,7 @@
 		<!-- <a href="<?php echo $this->url('auth/register') ?>">Register</a> -->
 	<?php } ?>
 	</div>
-	<h1>Crindigan</h1>
+	<h1><a href="<?php echo $this->url('home') ?>">Crindigan</a></h1>
 </div>
 
 <div id="nav">

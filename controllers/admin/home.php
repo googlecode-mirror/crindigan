@@ -25,8 +25,9 @@
 /**
  *
  */
-class CharacterController extends RPG_Controller
+class AdminHomeController extends RPG_Controller
 {
+	protected $_layout = 'layouts/backend.php';
 	
 }
 

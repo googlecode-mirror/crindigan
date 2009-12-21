@@ -151,23 +151,45 @@ class RPG_Input
 	}
 	
 	/**
-	 * 
-	 * $input->get('charId', 'int', array('min' => 1));
-	 * $input->get('charId', 'int');
-	 
-	 * $input->get(array('charId' => array('int', 'min' => 1)));
-	 * $input->get(array('charId' => 'int'));
+	 * Retrieves a value from the query string in a GET request, optionally
+	 * running it through a filter.
+	 *
+	 * @param  string $key The key which references the query value.
+	 * @param  string $filter Name of the filter to pass the value through.
+	 * @param  array $options Options for the filter.
+	 * @return mixed
+	 * @see RPG_Input_Filter
 	 */
 	public function get($key, $filter = '', array $options = array())
 	{
 		return $this->filterFromArray($_GET, $key, $filter, $options);
 	}
 	
+	/**
+	 * Retrieves a value from the posted data in a POST request, optionally
+	 * running it through a filter.
+	 *
+	 * @param  string $key
+	 * @param  string $filter
+	 * @param  array $options
+	 * @return mixed
+	 * @see RPG_Input::get()
+	 */
 	public function post($key, $filter = '', array $options = array())
 	{
 		return $this->filterFromArray($_POST, $key, $filter, $options);
 	}
 	
+	/**
+	 * Retrieves a value from the user's cookies, optionally running it
+	 * through a filter.
+	 *
+	 * @param  string $key Key of the cookie. Applies the cookie prefix.
+	 * @param  string $filter
+	 * @param  array  $options
+	 * @return mixed
+	 * @see RPG_Input::get()
+	 */
 	public function cookie($key, $filter = '', array $options = array())
 	{
 		$cookiePrefix = RPG::config('cookiePrefix');
@@ -191,10 +213,13 @@ class RPG_Input
 	/**
 	 * Sets a cookie, applying the cookie prefix given in the configuration.
 	 *
-	 * @param  string $name
-	 * @param  string $value If left alone (as null), will delete the cookie.
-	 * @param  int $expire
-	 * @param  bool $httpOnly
+	 * @param  string $name  Name of the cookie.
+	 * @param  string $value Value of the cookie. 
+	 *                       If left alone (as null), will delete the cookie.
+	 * @param  int $expire How many seconds from now the cookie will expire.
+	 *                     If left as null, will expire in one year.
+	 * @param  bool $httpOnly If true, the cookie will not be accessible via
+	 *                        JavaScript in most newer browsers.
 	 */
 	public function setCookie($name, $value = null, $expire = null, $httpOnly = false)
 	{
@@ -307,7 +332,7 @@ class RPG_Input
 	}
 	
 	/**
-	 * Recursively strips slashes from a given input array
+	 * Recursively strips slashes from a given input array.
 	 *
 	 * @param  array &$input
 	 */
