@@ -223,7 +223,7 @@ class RPG_Template
 	/**
 	 * Renders a template and returns its contents.
 	 *
-	 * @return string
+	 * @return string Rendered template.
 	 */
 	public function render()
 	{
@@ -233,12 +233,31 @@ class RPG_Template
 		return ob_get_clean();
 	}
 	
+	/**
+	 * Shortcut method for easier rendering of an inline template.
+	 * 
+	 * @param  string $template Path to template file.
+	 * @param  array  $vars Array of template variables.
+	 * @return string Rendered template.
+	 */
 	public function partial($template, array $vars = array())
 	{
 		$t = new self($template, $vars);
 		return $t->render();
 	}
 	
+	/**
+	 * Given a template name, and a list of variable arrays, this method will
+	 * iterate through all the sets of variables, rendering the template with
+	 * each set, and concatenating them together. Could be used for looping
+	 * through a complex list, where each list element would be too much HTML
+	 * to cleanly place in the main template itself.
+	 *
+	 * @param  string $template Path to template file.
+	 * @param  array  $varArray Array of associative arrays containing
+	 *                          template variables.
+	 * @return string All rendered templates concatenated together.
+	 */
 	public function partialLoop($template, array $varArray = array())
 	{
 		$t = new self($template);
@@ -254,6 +273,14 @@ class RPG_Template
 		return $s;
 	}
 	
+	/**
+	 * Escapes and prints a string with htmlspecialchars, encoding both single
+	 * and double quotes, in UTF-8, and without double encoding.
+	 *
+	 * @param  string $str Text to encode.
+	 * @param  bool $return If true, returns rather than directly prints.
+	 * @return string|void Encoded string if $return is true.
+	 */
 	public function escape($str, $return = false)
 	{
 		$str = htmlspecialchars($str, ENT_QUOTES, 'UTF-8', false);
@@ -264,6 +291,16 @@ class RPG_Template
 		echo $str;
 	}
 	
+	/**
+	 * Returns an escaped internal URL given the path as
+	 * "controller/action/param1/.../paramN" and an array of elements to
+	 * include in the query string.
+	 *
+	 * @param  string $path
+	 * @param  array  $query
+	 * @return string Escaped URL.
+	 * @see    RPG::url()
+	 */
 	public function url($path, array $query = array())
 	{
 		return $this->escape(RPG::url($path, $query), true);

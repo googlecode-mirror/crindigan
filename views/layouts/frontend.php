@@ -32,6 +32,7 @@
 	<?php } else { ?>
 		<form action="<?php echo $this->url('auth/login') ?>" method="post">
 		<input type="hidden" name="returnto" value="<?php $this->escape(RPG::input()->getPath(true)) ?>" />
+		<input type="hidden" name="csrf_token" value="<?php $this->escape(RPG::session()->getFormToken('core_login')) ?>" />
 		<input type="text" name="username" id="login_username" size="12" value="Username" title="Username" />
 		<input type="password" name="password" id="login_password" size="12" value="Password" title="Password" />
 		<!--<label for="login_remember">Remember Me </label>--><input type="checkbox" name="remember" id="login_remember" value="1" title="Remember me" />
@@ -59,6 +60,14 @@
 
 <div id="main">
 
+	<?php if (RPG::session()->hasFlash('frontend_error')) { ?>
+		<div id="frontend_error"><?php echo RPG::session()->getFlash('frontend_error') ?></div>
+	<?php } ?>
+	
+	<?php if (RPG::session()->hasFlash('frontend_message')) { ?>
+		<div id="frontend_message"><?php echo RPG::session()->getFlash('frontend_message') ?></div>
+	<?php } ?>
+	
 	<?php if (isset($title)) { ?>
 	<h2 id="pagetitle">&raquo; <?php $this->escape($title) ?></h2>
 	<?php } ?>

@@ -152,9 +152,23 @@ class RPG_Input
 	
 	/**
 	 * Retrieves a value from the query string in a GET request, optionally
-	 * running it through a filter.
+	 * running it through a filter. The $key parameter can be either a string,
+	 * which will represent a single query value, or an array. If $key is an
+	 * array, it should be an associative array with keys pointing to the name
+	 * of a filter. If filter options are required, replace the name of the
+	 * filter with an array with its first element as the filter name, and
+	 * remaining keyed elements as filter options.
 	 *
-	 * @param  string $key The key which references the query value.
+	 * Examples:
+	 *
+	 * $userId = RPG::input()->get('userid', 'uint');
+	 *
+	 * $user = RPG::input()->get(array(
+	 *   'userid' => 'uint',
+	 *   'name'   => array('string', 'maxLength' => 30),
+	 * ));
+	 *
+	 * @param  string|array $key The key which references the query value.
 	 * @param  string $filter Name of the filter to pass the value through.
 	 * @param  array $options Options for the filter.
 	 * @return mixed
@@ -169,7 +183,7 @@ class RPG_Input
 	 * Retrieves a value from the posted data in a POST request, optionally
 	 * running it through a filter.
 	 *
-	 * @param  string $key
+	 * @param  string|array $key
 	 * @param  string $filter
 	 * @param  array $options
 	 * @return mixed
@@ -184,7 +198,7 @@ class RPG_Input
 	 * Retrieves a value from the user's cookies, optionally running it
 	 * through a filter.
 	 *
-	 * @param  string $key Key of the cookie. Applies the cookie prefix.
+	 * @param  string|array $key Key of the cookie. Applies the cookie prefix.
 	 * @param  string $filter
 	 * @param  array  $options
 	 * @return mixed
