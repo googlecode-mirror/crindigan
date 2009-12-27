@@ -152,3 +152,56 @@ class RPG_Exception extends Exception
 		return htmlentities(implode(', ', $out));
 	}
 }
+
+/**
+ * Exception class for invalid form tokens.
+ *
+ * @package Crindigan
+ */
+class RPG_Exception_Token extends RPG_Exception
+{
+	/**
+	 * Denotes the token has expired.
+	 *
+	 * @var int
+	 */
+	const EXPIRED = 1;
+	
+	/**
+	 * Denotes the token is invalid.
+	 *
+	 * @var int
+	 */
+	const INVALID = 2;
+	
+	/**
+	 * Denotes the token is missing.
+	 *
+	 * @var int
+	 */
+	const MISSING = 3;
+	
+	/**
+	 * Creates an instance, setting either the EXPIRED or INVALID code.
+	 *
+	 * @param  int $code RPG_Exception_Token::EXPIRED or
+	 *                   RPG_Exception_Token::INVALID
+	 */
+	public function __construct($code)
+	{
+		switch ($code)
+		{
+			case self::EXPIRED:
+				$message = 'The secure form token has expired.';
+				break;
+			case self::INVALID:
+				$message = 'The secure form token is invalid.';
+				break;
+			case self::MISSING:
+				$message = 'The secure form token was missing from your request.';
+				break;
+		}
+		
+		parent::__construct($message, $code);
+	}
+}

@@ -27,7 +27,7 @@
  *
  * @package Crindigan
  */
-class NewsModel
+class NewsModel extends RPG_Model
 {
 	protected $_table = 'news';
 	

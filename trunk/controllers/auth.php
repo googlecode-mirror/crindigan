@@ -50,6 +50,17 @@ class AuthController extends RPG_Controller
 			RPG::view()->redirect('home');
 		}
 		
+		// check CSRF token
+		try
+		{
+			RPG::session()->checkFormToken('core_login');
+		}
+		catch (RPG_Exception_Token $e)
+		{
+			RPG::session()->setFlash('frontend_error', $e->getMessage());
+			RPG::view()->redirect('home');
+		}
+		
 		$post = RPG::input()->post(array('username' => 'string',
 		                                 'password' => 'string',
 		                                 'remember' => 'uint',
@@ -59,6 +70,7 @@ class AuthController extends RPG_Controller
 		
 		if ($auth->authenticate())
 		{
+			RPG::session()->regenerateId();
 			RPG::session()->loggedIn = true;
 			RPG::session()->userId   = $auth->getUserId();
 			RPG::user()->setupMember();
@@ -68,26 +80,27 @@ class AuthController extends RPG_Controller
 				RPG::user()->refreshAutoLogin();
 			}
 			
-			// redirect to previous page user visited
-			$returnTo = $post['returnto'];
-			$query = array();
-			if (strpos($returnTo, '?') !== false)
-			{
-				list($path, $queryString) = explode('?', $returnTo);
-				parse_str($queryString, $query);
-			}
-			else
-			{
-				$path = $returnTo;
-			}
-			
-			RPG::view()->redirect($path, $query);
+			RPG::session()->setFlash('frontend_message', 'Logged in successfully.');
 		}
 		else
 		{
-			// need a nice error system
-			RPG::view()->redirect('home');
+			RPG::session()->setFlash('frontend_error', 'Invalid username or password.');
 		}
+			
+		// redirect to previous page user visited
+		$returnTo = $post['returnto'];
+		$query = array();
+		if (strpos($returnTo, '?') !== false)
+		{
+			list($path, $queryString) = explode('?', $returnTo);
+			parse_str($queryString, $query);
+		}
+		else
+		{
+			$path = $returnTo;
+		}
+		
+		RPG::view()->redirect($path, $query);
 	}
 	
 	/**
@@ -106,9 +119,15 @@ class AuthController extends RPG_Controller
 		                   . sha1(RPG::config('cookieSalt'))))
 		{
 			$user->clearAutoLogin();
+			RPG::session()->regenerateId();
 			RPG::session()->loggedIn = false;
 			RPG::session()->userId   = 0;
 			$user->setupGuest();
+			RPG::session()->setFlash('frontend_message', 'Logged out successfully.');
+		}
+		else
+		{
+			RPG::session()->setFlash('frontend_error', 'Invalid logout hash.');
 		}
 		
 		$returnTo = urldecode(RPG::input()->get('returnto', 'string'));

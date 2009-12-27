@@ -54,6 +54,7 @@ spl_autoload_register('rpg_autoload');
 // Preload files that are always needed to avoid having to autoload everything.
 //
 
+require RPG_LIBRARY_PATH . '/RPG/Exception.php';
 require RPG_LIBRARY_PATH . '/RPG.php';
 
 // start the debug timer

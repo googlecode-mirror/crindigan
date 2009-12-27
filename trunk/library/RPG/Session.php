@@ -30,6 +30,20 @@
 class RPG_Session
 {
 	/**
+	 * Maximum age of form tokens, in seconds.
+	 *
+	 * @var int
+	 */
+	const FORM_TOKEN_MAX_AGE = 10800;
+	
+	/**
+	 * Maximum number of form tokens that can exist at once.
+	 *
+	 * @var int
+	 */
+	const MAX_TOKENS = 100;
+	
+	/**
 	 * Initializes the session instance. Sets up the save handler, proper
 	 * cookie params, and starts the session.
 	 */
@@ -63,6 +77,7 @@ class RPG_Session
 		);
 		
 		session_start();
+		$this->checkHash();
 	}
 	
 	/**
@@ -164,6 +179,35 @@ class RPG_Session
 	}
 	
 	/**
+	 * Regenerates the session ID, deleting the old one.
+	 */
+	public function regenerateId()
+	{
+		return session_regenerate_id(true);
+	}
+	
+	/**
+	 * Checks the hash from this request against previous requests, to try
+	 * and catch any session hijacking. If foul play is detected, invalidates
+	 * the session and clears out all variables.
+	 */
+	public function checkHash()
+	{
+		// hash the first 2 parts of the user's IP, and their user agent
+		$hash = sha1(RPG::input()->getIP(2) . RPG::input()->getUserAgent());
+		
+		if (!isset($_SESSION['_hash']))
+		{
+			$_SESSION['_hash'] = $hash;
+		}
+		else if ($_SESSION['_hash'] !== $hash)
+		{
+			$this->regenerateId();
+			$this->clear();
+		}
+	}
+	
+	/**
 	 * Sets a one-time read value to the given key.
 	 *
 	 * @param  string $key
@@ -209,6 +253,74 @@ class RPG_Session
 	}
 	
 	/**
+	 * Sets up and returns a one time use CSRF token.
+	 * 
+	 * @param  string $formKey Unique form key.
+	 * @return string
+	 */
+	public function getFormToken($formKey)
+	{
+		if (!isset($_SESSION['_csrf']))
+		{
+			$_SESSION['_csrf'] = array();
+		}
+		
+		// only store a limited number of these
+		if (sizeof($_SESSION['_csrf']) > self::MAX_TOKENS)
+		{
+			array_shift($_SESSION['_csrf']);
+		}
+		
+		$token = sha1($formKey . microtime() . uniqid(mt_rand(), true));	
+		$_SESSION['_csrf'][$formKey] = RPG_NOW . '|' . $token;
+		
+		return $token;
+	}
+	
+	/**
+	 * Validates the form token given in a request.
+	 *
+	 * @param  string $formKey Unique form key.
+	 * @return bool
+	 * @throws RPG_Exception_Token in case of error.
+	 */
+	public function checkFormToken($formKey)
+	{
+		// pick the token from the request
+		$userToken = RPG::input()->post('csrf_token', 'string');
+		
+		// token wasn't there?
+		if (empty($userToken))
+		{
+			throw new RPG_Exception_Token(RPG_Exception_Token::MISSING);
+		}
+		
+		// token wasn't set server-side?
+		if (!isset($_SESSION['_csrf'][$formKey]))
+		{
+			throw new RPG_Exception_Token(RPG_Exception_Token::INVALID);
+		}
+		
+		list($time, $token) = explode('|', $_SESSION['_csrf'][$formKey]);
+		
+		// token expired?
+		if (intval($time) < RPG_NOW - self::FORM_TOKEN_MAX_AGE)
+		{
+			throw new RPG_Exception_Token(RPG_Exception_Token::EXPIRED);
+		}
+		
+		// check to make sure tokens match
+		if ($userToken !== $token)
+		{
+			throw new RPG_Exception_Token(RPG_Exception_Token::INVALID);
+		}
+		
+		// remove existing token and return success.
+		unset($_SESSION['_csrf'][$formKey]);
+		return true;
+	}
+	
+	/**
 	 * Verifies that the current session is that of a logged in user.
 	 *
 	 * @return bool
@@ -221,6 +333,17 @@ class RPG_Session
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Clears and resets internal session data.
+	 */
+	public function clear()
+	{
+		$_SESSION['_user']  = array();
+		$_SESSION['_flash'] = array();
+		$_SESSION['_csrf']  = array();
+		unset($_SESSION['_hash']);
 	}
 	
 	/**

@@ -178,3 +178,22 @@ div#footerlinks a:hover {
 	background-color: inherit;
 	color: #000000;
 }
+
+/*
+ * Messages
+ */
+#frontend_error {
+	margin: 1em;
+	padding: .5em;
+	border: 1px solid #800000;
+	background-color: #FFD0D0;
+	color: #800000;
+}
+
+#frontend_message {
+	margin: 1em;
+	padding: .5em;
+	border: 1px solid #6060A0;
+	background-color: #E0E0FF;
+	color: #000000;
+}
