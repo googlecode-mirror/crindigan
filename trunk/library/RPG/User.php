@@ -44,12 +44,47 @@ class RPG_User
 	protected $_model = null;
 	
 	/**
+	 * RPG_Session instance.
+	 *
+	 * @var RPG_Session
+	 */
+	protected $_session = null;
+	
+	/**
+	 * RPG_Input instance.
+	 *
+	 * @var RPG_Input
+	 */
+	protected $_input = null;
+	
+	/**
 	 * Initializes the user, setting them up as a member or guest, and
 	 * checking for automatic logins.
+	 * 
+	 * @param RPG_Model $model Instance of a user model.
+	 * @param RPG_Session $session Instance of session class.
+	 * @param RPG_Input $input Instance of input class.
 	 */
-	public function __construct()
+	public function __construct($model = null, $session = null, $input = null)
 	{
-		$this->_model = RPG::model('user');
+		if ($model === null)
+		{
+			$model = RPG::model('user');
+		}
+		
+		if ($session === null)
+		{
+			$session = RPG::session();
+		}
+		
+		if ($input === null)
+		{
+			$input = RPG::input();
+		}
+		
+		$this->_model   = $model;
+		$this->_session = $session;
+		$this->_input   = $input;
 		
 		// try to see if we're logged in according to the session
 		if ($this->isLoggedIn())
@@ -69,7 +104,7 @@ class RPG_User
 	 */
 	public function setupMember()
 	{
-		$userId = RPG::session()->userId;
+		$userId = $this->_session->userId;
 		$this->data = $this->_model->getUserInfo($userId);
 		
 		$this->data['user_logouthash'] = sha1($this->id . sha1($this->salt) . 
@@ -85,8 +120,8 @@ class RPG_User
 			'user_id' => 0,
 			'user_name' => 'Guest',
 		);
-		RPG::session()->userId   = 0;
-		RPG::session()->loggedIn = false;
+		$this->_session->userId   = 0;
+		$this->_session->loggedIn = false;
 	}
 	
 	/**
@@ -99,8 +134,8 @@ class RPG_User
 	 */
 	protected function _attemptAutoLogin()
 	{
-		$userId   = RPG::input()->cookie('userid', 'uint');
-		$loginKey = RPG::input()->cookie('autologin', 'string');
+		$userId   = $this->_input->cookie('userid', 'uint');
+		$loginKey = $this->_input->cookie('autologin', 'string');
 		
 		if (!$userId OR !$loginKey)
 		{
@@ -121,8 +156,8 @@ class RPG_User
 		}
 		
 		// we succeeded. log in, set up the member, and refresh auto login details.
-		RPG::session()->loggedIn = true;
-		RPG::session()->userId   = $userId;
+		$this->_session->loggedIn = true;
+		$this->_session->userId   = $userId;
 		$this->setupMember();
 		$this->refreshAutoLogin();
 		
@@ -139,9 +174,9 @@ class RPG_User
 		$this->_model->updateAutoLogin($this->data['user_id'], $loginKey, RPG_NOW);
 		
 		// set httponly cookie for 30 days
-		RPG::input()->setCookie('autologin', sha1($loginKey . RPG::config('cookieSalt')),
+		$this->_input->setCookie('autologin', sha1($loginKey . RPG::config('cookieSalt')),
 			86400 * 30, true);
-		RPG::input()->setCookie('userid', $this->data['user_id'], 86400 * 30, true);
+		$this->_input->setCookie('userid', $this->data['user_id'], 86400 * 30, true);
 	}
 	
 	/**
@@ -152,8 +187,8 @@ class RPG_User
 		// no params clears the autologin
 		$this->_model->updateAutoLogin($this->data['user_id']);
 		
-		RPG::input()->setCookie('autologin', null);
-		RPG::input()->setCookie('userid', null);
+		$this->_input->setCookie('autologin', null);
+		$this->_input->setCookie('userid', null);
 	}
 	
 	/**
@@ -163,7 +198,7 @@ class RPG_User
 	 */
 	public function isLoggedIn()
 	{
-		return RPG::session()->isLoggedIn();
+		return $this->_session->isLoggedIn();
 	}
 	
 	/**

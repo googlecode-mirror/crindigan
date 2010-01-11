@@ -235,7 +235,7 @@ final class RPG
 	 *
 	 * @return RPG_User
 	 */
-	public static function user()
+	public static function user($model = null)
 	{
 		if (self::$_user === null)
 		{

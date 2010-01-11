@@ -106,7 +106,7 @@ try
 	RPG_Model::setPath($config['modelPath']);
 	
 	RPG::session();
-	RPG::user();
+	RPG::user(RPG::model('user'));
 	
 	// add this now, so controllers can include CSS that overrides defaults
 	RPG::view()->addStyleSheet('media/styles/light.css');

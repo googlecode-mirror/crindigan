@@ -51,7 +51,7 @@ abstract class RPG_Auth
 	protected $_userId = 0;
 	
 	/**
-	 * Constructor. Protected so that only subclasses may be instantiated.
+	 * Constructor.
 	 *
 	 * @param  string $username
 	 * @param  string $password
