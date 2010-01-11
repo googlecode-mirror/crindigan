@@ -120,7 +120,10 @@ class RPG_Router
 		
 		if (!method_exists($controller, $action))
 		{
-			throw new RPG_Exception('Action "' . $action . '" does not exist.');
+			array_unshift($parts['params'], $this->_action);
+			$action = 'do404';
+			$this->_action = '404';
+			//throw new RPG_Exception('Action "' . $action . '" does not exist.');
 		}
 		
 		call_user_func_array(array($controller, $action), $parts['params']);

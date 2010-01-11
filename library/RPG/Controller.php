@@ -42,6 +42,7 @@ class RPG_Controller
 	public function __construct()
 	{
 		// add YUI 3 and common JS
+		// @DETACH - remove the default javascript includes
 		RPG::view()->setLayout($this->_layout)
 		           ->addScript('http://yui.yahooapis.com/3.0.0/build/yui/yui-min.js', true)
 		           ->addScript('media/js/common.js');
@@ -54,6 +55,7 @@ class RPG_Controller
 	 */
 	protected function _setupPublicMenu()
 	{
+		// @DETACH - Remove app-specific menu stuff
 		RPG::view()
 			->setNavEntry('home', 'home', 'Home', true)
 				->setSubNavEntry('home', array(
@@ -161,5 +163,18 @@ class RPG_Controller
 			RPG::view()->setLayout('layouts/empty.php')
 			           ->setContent($out);
 		}
+	}
+	
+	/**
+	 * Default 404 action if an action does not exist. Can be overridden
+	 * to provide alternate paths (eg. /user/1 instead of /user/view/1)
+	 *
+	 * @param  string $action Name of the action that tried to be called.
+	 * @param  string $param... List of parameters as variable-length list
+	 *                          of arguments.
+	 */
+	public function do404($action)
+	{
+		throw new RPG_Exception('Action "' . $action . '" does not exist.');
 	}
 }
