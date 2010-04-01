@@ -44,7 +44,7 @@ class RPG_Model
 	protected $_table = '';
 	
 	/**
-	 * Column definition for the table, in the form of column_name => default
+	 * Column definition for the table, in the form of column_name => data_type
 	 *
 	 * @var array
 	 */
@@ -58,81 +58,138 @@ class RPG_Model
 	protected $_primary = '';
 	
 	/**
+	 * Actual data mapped to a table row.
+	 *
+	 * @var array
+	 */
+	protected $_data = array();
+	
+	/**
+	 * Array of column names that were changed.
+	 *
+	 * @var array
+	 */
+	protected $_changed = array();
+	
+	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
-		
+	public function __construct($id = null) {
+		if ( !is_null($id) ) {
+			$this->load($id);
+		}
 	}
 	
 	/**
-	 * Inserts a new record based on the given object, and the subclass'
-	 * table and column definitions.
+	 * Attempts to load data from the model's related table, and the given ID.
 	 *
-	 * @param  stdClass $object
-	 * @return int Insert ID
+	 * @param  int $id
 	 */
-	public function insert($object)
-	{
-		$insert = array();
-		
-		foreach ($this->_columns AS $colName => $default)
-		{
-			if ($colName === $this->_primary)
-			{
-				continue;
+	public function load($id) {
+		$r = RPG::database()->select($this->_table)
+		                    ->addWhere($this->_primary . ' = ' . intval($id))
+		                    ->execute();
+		if ( $r->getNumRows() > 0 ) {
+			$row = $r->fetch();
+			$this->buildFromRow($row);
+		} else {
+			throw new RPG_Exception_DB("Row ID $id does not exist in {$this->_table}");
+		}
+	}
+	
+	/**
+	 * Builds the model object from a row returned from the database.
+	 *
+	 * @param  array $row
+	 */
+	protected function buildFromRow(array $row) {
+		foreach ( $this->_columns as $name => $type ) {
+			$this->_data[$name] = RPG::input()->filter($row[$name], $type);
+		}
+	}
+	
+	/**
+	 * Retrieves the value of a column.
+	 *
+	 * @param  string $name
+	 * @return mixed
+	 */
+	public function __get($name) {
+		if ( !isset($this->_columns[$name]) ) {
+			throw new RPG_Exception_DB('Column "' . $name '" does not exist on "' . $this->_table . '"');
+		}
+		return $this->_data[$name];
+	}
+	
+	/**
+	 * Sets the value of a column.
+	 *
+	 * @param  string $name
+	 * @param  mixed  $value
+	 */
+	public function __set($name, $value) {
+		if ( !isset($this->_columns[$name]) ) {
+			throw new RPG_Exception_DB('Column "' . $name '" does not exist on "' . $this->_table . '"');
+		}
+		$this->_data[$name]    = $value;
+		$this->_changed[$name] = true;
+	}
+	
+	public function __isset($name) {
+		return isset($this->_data[$name]);
+	}
+	
+	/**
+	 * Clears all data and changes.
+	 */
+	public function clear() {
+		$this->_data    = array();
+		$this->_changed = array();
+	}
+	
+	/**
+	 * Inserts or updates the record in the database.
+	 */
+	public function save() {
+		if ( !$this->_data[$this->_primary] ) {
+			$insert = array();
+			foreach ( $this->_columns as $col_name => $type ) {
+				if ( $col_name === $this->_primary ) {
+					continue;
+				}
+				$insert[$col_name] = $this->_beforeColumnSave($col_name);
 			}
-			
-			$insert[$colName] = isset($object->$colName) ? $object->$colName : $default;
+			$this->_data[$this->_primary] = RPG::database()->insert($this->_table, $insert);
+		} else {
+			$update    = array();
+			$condition = null;
+			foreach ( $this->_columns as $col_name => $type ) {
+				$value = $this->_beforeColumnSave($col_name);
+				if ( $col_name === $this->_primary ) {
+					$condition = array("{$this->_primary} = :primary_value",
+					                   'primary_value' => $value);
+				} else {
+					$update[$col_name] = $value;
+				}
+			}
+			if ( !is_null($condition) ) {
+				RPG::database()->update($this->_table, $update, $condition);
+			}
+		}
+	}
+	
+	protected function _beforeColumnSave($col_name) {
+		if ( isset($this->_data[$col_name]) ) {
+			$value = $this->_data[$col_name];
+		} else {
+			$value = RPG::input()->filter(null, $this->_columns[$col_name]);
 		}
 		
-		return RPG::database()->insert($this->_table, $insert);
-	}
-	
-	/**
-	 * Updates one or more existing records based on the given object, the
-	 * subclass' table/column definitions, and an optional condition.
-	 * If the object contains the primary key, it will override the condition
-	 * and update the row based on the key.
-	 * 
-	 * @param  stdClass $object
-	 * @param  array $condition
-	 * @return int Number of affected rows.
-	 */
-	public function update($object, array $condition = array())
-	{
-		$update = array();
-		
-		foreach ($this->_columns AS $colName => $x)
-		{
-			if (isset($object->$colName))
-			{
-				if ($colName === $this->_primary)
-				{
-					$condition = array("{$this->_primary} = :0", $object->$colName);
-				}
-				else
-				{
-					$update[$colName] = $object->$colName;
-				}
-			}
-			else if (isset($object->{'expr__' . $colName}))
-			{
-				$update["expr:$colName"] = $object->$colName;
-			}
+		if ( $this->_columns[$col_name] === 'datetime' && $value instanceof DateTime ) {
+			$value = $value->format('Y-m-d H:i:s');
 		}
 		
-		return RPG::database()->update($this->_table, $update, $condition);
-	}
-	
-	/**
-	 * Returns an stdClass to start building an object record.
-	 *
-	 * @return stdClass
-	 */
-	public function getObject()
-	{
-		return new stdClass();
+		return $value;
 	}
 	
 	/**
@@ -140,7 +197,7 @@ class RPG_Model
 	 *
 	 * @param  string $path
 	 */
-	public static function setPath($path)
+	static public function setPath($path)
 	{
 		if (!is_dir($path))
 		{
@@ -155,7 +212,7 @@ class RPG_Model
 	 *
 	 * @return string
 	 */
-	public static function getPath()
+	static public function getPath()
 	{
 		return self::$_path;
 	}

@@ -42,16 +42,16 @@ class UserModel extends RPG_Model
 	 * @var array
 	 */
 	protected $_columns = array(
-		'user_id'       => 0,
-		'user_name'     => '',
-		'user_password' => '',
-		'user_salt'     => '',
-		'user_email'    => '',
-		'user_autologin' => '',
-		'user_autologin_time' => 0,
-		'user_money'       => 0,
-		'user_external_id' => 0,
-		'user_joindate'    => 0,
+		'user_id'       => 'uint',
+		'user_name'     => 'string',
+		'user_password' => 'string',
+		'user_salt'     => 'string',
+		'user_email'    => 'string',
+		'user_autologin'      => 'string',
+		'user_autologin_time' => 'datetime',
+		'user_money'          => 'int',
+		'user_external_id'    => 'uint',
+		'user_joindate'       => 'datetime',
 	);
 	
 	/**
