@@ -158,25 +158,9 @@ final class RPG
 	 * @param  string $name
 	 * @return RPG_Model subclass
 	 */
-	public static function model($name)
-	{
-		if (!isset(self::$_models[$name]))
-		{
-			if (!file_exists(RPG_Model::getPath() . "/$name.php"))
-			{
-				throw new RPG_Exception("Model \"$name\" does not exist.");
-			}
-			
-			require RPG_Model::getPath() . "/$name.php";
-			
-			// foo/bar -> FooBarModel
-			$className  = str_replace(' ', '', ucwords(str_replace('/', ' ', $name)));
-			$className .= 'Model';
-			
-			self::$_models[$name] = new $className();
-		}
-		
-		return self::$_models[$name];
+	public static function model($name, $id = null) {
+		$class = ucfirst($name) . 'Model';
+		return new $class($id);
 	}
 	
 	/**

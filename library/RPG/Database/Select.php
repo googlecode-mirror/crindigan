@@ -328,9 +328,11 @@ class RPG_Database_Select
 	 *
 	 * @return string
 	 */
-	public function getSql()
-	{
+	public function getSql() {
 		// select, from
+		if ( count($this->_columns) == 0 ) {
+			$this->_columns[] = '*';
+		}
 		$sql = 'SELECT ' . implode(', ', $this->_columns) . "\n"
 		     . 'FROM {' . $this->_from . "}\n";
 		

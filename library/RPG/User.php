@@ -105,7 +105,8 @@ class RPG_User
 	public function setupMember()
 	{
 		$userId = $this->_session->userId;
-		$this->data = $this->_model->getUserInfo($userId);
+		//$this->data = $this->_model->getUserInfo($userId);
+		$this->_model->load($userId);
 		
 		$this->data['user_logouthash'] = sha1($this->id . sha1($this->salt) . 
 			sha1($this->name) . sha1(RPG::config('cookieSalt')));
@@ -171,12 +172,12 @@ class RPG_User
 	public function refreshAutoLogin()
 	{
 		$loginKey = sha1($this->_model->generateSalt(20));
-		$this->_model->updateAutoLogin($this->data['user_id'], $loginKey, RPG_NOW);
+		$this->_model->updateAutoLogin($this->user_id, $loginKey, RPG_NOW);
 		
 		// set httponly cookie for 30 days
 		$this->_input->setCookie('autologin', sha1($loginKey . RPG::config('cookieSalt')),
 			86400 * 30, true);
-		$this->_input->setCookie('userid', $this->data['user_id'], 86400 * 30, true);
+		$this->_input->setCookie('userid', $this->user_id, 86400 * 30, true);
 	}
 	
 	/**
@@ -185,7 +186,7 @@ class RPG_User
 	public function clearAutoLogin()
 	{
 		// no params clears the autologin
-		$this->_model->updateAutoLogin($this->data['user_id']);
+		$this->_model->updateAutoLogin($this->user_id);
 		
 		$this->_input->setCookie('autologin', null);
 		$this->_input->setCookie('userid', null);
@@ -210,6 +211,7 @@ class RPG_User
 	 */
 	public function __get($key)
 	{
-		return isset($this->data["user_$key"]) ? $this->data["user_$key"] : null;
+		//return isset($this->data["user_$key"]) ? $this->data["user_$key"] : null;
+		return isset($this->_model->$key) ? $this->_model->$key : null;
 	}
 }

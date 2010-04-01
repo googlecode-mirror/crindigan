@@ -84,7 +84,7 @@
 			<a href="<?php echo $this->url('home') ?>">Home</a>
 			<a href="#top">Top</a>
 		</div>
-		Crindigan Version <?php echo RPG_VERSION ?>, Copyright &copy; 2009 Steven Harris
+		Crindigan Version <?php echo RPG_VERSION ?>, Copyright &copy; 2009-2010 Steven Harris
 	</div>
 	
 	<?php if (RPG::config('debug') AND !empty(RPG::$debugMessages)) { ?>

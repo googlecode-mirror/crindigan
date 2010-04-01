@@ -32,11 +32,11 @@ class NewsModel extends RPG_Model
 	protected $_table = 'news';
 	
 	protected $_columns = array(
-		'news_id'     => 0,
-		'news_author' => 0,
-		'news_title'  => '',
-		'news_body'   => '',
-		'news_time'   => 0,
+		'news_id'     => 'uint',
+		'news_author' => 'uint',
+		'news_title'  => 'string',
+		'news_body'   => 'string',
+		'news_time'   => 'datetime',
 	);
 	
 	protected $_primary = 'news_id';

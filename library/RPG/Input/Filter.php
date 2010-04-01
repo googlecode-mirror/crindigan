@@ -203,4 +203,24 @@ class RPG_Input_Filter
 		
 		return $var;
 	}
+	
+	/**
+	 * Filters the given variable as a date/time object.
+	 *
+	 * @param  mixed $var
+	 * @param  array $options
+	 * @return DateTime
+	 */
+	public static function datetimeFilter($var, array $options) {
+		// make a guess that it's a timestamp
+		if ( is_numeric($var) ) {
+			$var = "@$var";
+		}
+		try {
+			return new DateTime($var);
+		} catch ( Exception $e ) {
+			// handle this differently?
+			return new DateTime('@0');
+		}
+	}
 }

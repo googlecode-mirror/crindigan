@@ -38,17 +38,8 @@ if (!defined('RPG_LIBRARY_PATH')) {
 // Set up the autoloader
 //
 
-function rpg_autoload($className)
-{
-	$filePath = RPG_LIBRARY_PATH . '/' . str_replace('_', '/', $className) . '.php';
-	if (file_exists($filePath))
-	{
-		require $filePath;
-		return class_exists($className);
-	}
-	return false;
-}
-spl_autoload_register('rpg_autoload');
+require RPG_LIBRARY_PATH . '/RPG/Loader.php';
+spl_autoload_register(array('RPG_Loader', 'autoload'));
 
 //
 // Preload files that are always needed to avoid having to autoload everything.

@@ -154,6 +154,14 @@ class RPG_Exception extends Exception
 }
 
 /**
+ * Exception class for database errors.
+ *
+ * @package Crindigan
+ */
+class RPG_Exception_DB extends RPG_Exception {
+}
+
+/**
  * Exception class for invalid form tokens.
  *
  * @package Crindigan
