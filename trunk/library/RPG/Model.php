@@ -164,6 +164,10 @@ class RPG_Model
 			$update    = array();
 			$condition = null;
 			foreach ( $this->_columns as $col_name => $type ) {
+				if ( !isset($this->_changed[$col_name]) || !$this->_changed[$col_name] ) {
+					continue;
+				}
+				
 				$value = $this->_beforeColumnSave($col_name);
 				if ( $col_name === $this->_primary ) {
 					$condition = array("{$this->_primary} = :primary_value",
